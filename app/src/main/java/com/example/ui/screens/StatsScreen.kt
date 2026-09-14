@@ -101,7 +101,7 @@ fun StatsScreen(
                                 color = PrimaryIndigo
                             )
                             Text(
-                                text = "Aneqh Speed Calculation League",
+                                text = "Anek Speed Calculation League",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
