@@ -1,0 +1,64 @@
+name: Build & Release Aneqh APK
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle Wrapper Executable (if present)
+        run: |
+          if [ ! -f "gradlew" ]; then
+            gradle wrapper
+          fi
+          chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Copy & Rename APK
+        run: |
+          mkdir -p release_apk
+          find app/build/outputs/apk/ -name "*.apk" -exec cp {} release_apk/Aneqh-v1.0-debug.apk \;
+          ls -la release_apk/
+
+      - name: Upload APK to GitHub Artifacts (Direct Download)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aneqh-APK
+          path: release_apk/Aneqh-v1.0-debug.apk
+          retention-days: 30
+
+      - name: Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/heads/')
+        with:
+          tag_name: v1.0.0
+          name: Aneqh v1.0.0 Official Release
+          body: |
+            ## 🎉 ANEQH Official App Release
+            - **App Name**: Aneqh
+            - **Features**: Inspector Chalisa 12 Chapters, Speed Quiz Drills, 10x Solvers, Formula Cheat Sheets.
+            - **Direct APK**: Download `Aneqh-v1.0-debug.apk` below and install directly on your Android phone!
+          files: release_apk/Aneqh-v1.0-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
