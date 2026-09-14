@@ -29,13 +29,12 @@ jobs:
 
       - name: Prepare Keystore & Environment Files
         run: |
-          # 1. Create .env if missing
+          # 1. Create .env and .env.example if missing
+          if [ ! -f ".env.example" ]; then
+            touch .env.example
+          fi
           if [ ! -f ".env" ]; then
-            if [ -f ".env.example" ]; then
-              cp .env.example .env
-            else
-              touch .env
-            fi
+            cp .env.example .env
           fi
 
           # 2. Decode debug.keystore from base64 if present
@@ -47,7 +46,7 @@ jobs:
           chmod +x gradlew || true
 
       - name: Build Debug APK with Gradle
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:+HeapDumpOnOutOfMemoryError"
 
       - name: Locate & Prepare Output APK
         run: |
