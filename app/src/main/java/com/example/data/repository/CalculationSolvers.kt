@@ -237,4 +237,97 @@ object CalculationSolvers {
         }
         return x
     }
+
+
+    // --- SSC CGL PYQ Dynamic Concept Solvers (Percentage) ---
+
+    // 8. Sugar Price / Expenditure Concept
+    fun solvePyqPriceConsumption(rateChange: Double, isIncrease: Boolean): SolverResult {
+        val numerator = rateChange
+        val denominator = if (isIncrease) 100.0 + rateChange else 100.0 - rateChange
+        val ansPercent = (numerator / denominator) * 100.0
+        val increaseOrDecrease = if (isIncrease) "कमी (Decrease)" else "वृद्धि (Increase)"
+        
+        val steps = listOf(
+            "SSC CGL PYQ Concept: चीनी / पेट्रोल की कीमत पर आधारित",
+            "सूत्र: [ R / (100 ± R) ] × 100",
+            "Step 1: R = $rateChange%",
+            "Step 2: चूँकि कीमत में ${if(isIncrease) "वृद्धि" else "कमी"} हुई है, इसलिए हर (Denominator) = 100 ${if(isIncrease) "+" else "-"} $rateChange = $denominator",
+            "Step 3: खपत में $increaseOrDecrease = ($numerator / $denominator) × 100",
+            "Step 4: = %.2f%%".format(ansPercent)
+        )
+        return SolverResult(
+            finalAnswer = "%.2f%% $increaseOrDecrease".format(ansPercent),
+            methodTitle = "Price-Consumption Concept (SSC PYQ)",
+            steps = steps,
+            mentalNote = "R / (100±R) × 100: अंश समान रखें, हर में R जोड़ें/घटाएं।"
+        )
+    }
+
+    // 9. Election Concept
+    fun solvePyqElection(winnerPercent: Double, majorityVotes: Double): SolverResult {
+        val loserPercent = 100.0 - winnerPercent
+        val diffPercent = winnerPercent - loserPercent
+        
+        if (diffPercent <= 0) {
+             return SolverResult(
+                finalAnswer = "Invalid Input",
+                methodTitle = "Election Concept (SSC PYQ)",
+                steps = listOf("विजेता का प्रतिशत 50% से अधिक होना चाहिए।"),
+                mentalNote = "Error"
+            )
+        }
+        
+        val totalVotes = (majorityVotes / diffPercent) * 100.0
+        
+        val steps = listOf(
+            "SSC CGL PYQ Concept: चुनाव (विजेता और हारने वाला)",
+            "Step 1: कुल वोट हमेशा 100% होते हैं।",
+            "Step 2: विजेता को मिले = $winnerPercent%",
+            "Step 3: हारने वाले को मिले = 100% - $winnerPercent% = $loserPercent%",
+            "Step 4: जीत का अंतर = $winnerPercent% - $loserPercent% = $diffPercent%",
+            "Step 5: प्रश्न अनुसार $diffPercent% = $majorityVotes वोट",
+            "Step 6: कुल वोट (100%) = ($majorityVotes / $diffPercent) × 100 = ${totalVotes.toLong()} वोट"
+        )
+        return SolverResult(
+            finalAnswer = "${totalVotes.toLong()} Votes",
+            methodTitle = "Election Concept (SSC PYQ)",
+            steps = steps,
+            mentalNote = "अंतर % = बहुमत वोट ➔ 100% निकालें।"
+        )
+    }
+
+    // 10. Pass / Fail Marks Concept
+    fun solvePyqPassFail(failPercent: Double, failMarks: Double, passPercent: Double, extraMarks: Double): SolverResult {
+        val diffPercent = passPercent - failPercent
+        val diffMarks = failMarks + extraMarks
+        
+        if (diffPercent <= 0) {
+             return SolverResult(
+                finalAnswer = "Invalid Input",
+                methodTitle = "Pass/Fail Marks Concept (SSC PYQ)",
+                steps = listOf("पास प्रतिशत, फेल प्रतिशत से अधिक होना चाहिए।"),
+                mentalNote = "Error"
+            )
+        }
+        
+        val totalMaxMarks = (diffMarks / diffPercent) * 100.0
+        val passingMarks = (failPercent / 100.0) * totalMaxMarks + failMarks
+        
+        val steps = listOf(
+            "SSC CGL PYQ Concept: पास और फेल अंकों पर आधारित",
+            "Step 1: दोनों छात्रों के अंकों का अंतर = फेल अंक ($failMarks) + अतिरिक्त अंक ($extraMarks) = $diffMarks",
+            "Step 2: दोनों छात्रों के प्रतिशत का अंतर = $passPercent% - $failPercent% = $diffPercent%",
+            "Step 3: इसलिए, $diffPercent% = $diffMarks अंक",
+            "Step 4: कुल अधिकतम अंक (100%) = ($diffMarks / $diffPercent) × 100 = ${totalMaxMarks.toLong()}",
+            "Step 5: पास होने के लिए आवश्यक अंक = (कुल का $failPercent%) + $failMarks = ${passingMarks.toLong()}"
+        )
+        
+        return SolverResult(
+            finalAnswer = "Max: ${totalMaxMarks.toLong()}, Pass: ${passingMarks.toLong()}",
+            methodTitle = "Pass/Fail Marks Concept (SSC PYQ)",
+            steps = steps,
+            mentalNote = "अंकों का योग (Opposite sides) / प्रतिशत का अंतर × 100"
+        )
+    }
 }
