@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build:
+    name: Build Aneqh APK
     runs-on: ubuntu-latest
 
     steps:
@@ -21,44 +22,58 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Make Gradle Wrapper Executable (if present)
+      - name: Prepare Keystore & Environment Files
         run: |
-          if [ ! -f "gradlew" ]; then
-            gradle wrapper
+          # 1. Create .env if missing
+          if [ ! -f ".env" ]; then
+            if [ -f ".env.example" ]; then
+              cp .env.example .env
+            else
+              touch .env
+            fi
           fi
-          chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+          # 2. Decode debug.keystore from base64 if present
+          if [ -f "debug.keystore.base64" ] && [ ! -f "debug.keystore" ]; then
+            base64 -d debug.keystore.base64 > debug.keystore || true
+          fi
 
-      - name: Copy & Rename APK
+          # 3. Ensure gradlew is executable
+          chmod +x gradlew || true
+
+      - name: Build Debug APK with Gradle
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Locate & Prepare Output APK
         run: |
           mkdir -p release_apk
-          find app/build/outputs/apk/ -name "*.apk" -exec cp {} release_apk/Aneqh-v1.0-debug.apk \;
+          find app/build/outputs/apk/ -name "*.apk" -exec cp {} release_apk/Aneqh-debug.apk \;
           ls -la release_apk/
 
-      - name: Upload APK to GitHub Artifacts (Direct Download)
+      - name: Upload APK to Artifacts (Direct Download)
         uses: actions/upload-artifact@v4
         with:
-          name: Aneqh-APK
-          path: release_apk/Aneqh-v1.0-debug.apk
+          name: Aneqh-Android-APK
+          path: release_apk/Aneqh-debug.apk
           retention-days: 30
 
-      - name: Create GitHub Release with APK
+      - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/heads/')
+        if: always()
+        continue-on-error: true
         with:
-          tag_name: v1.0.0
-          name: Aneqh v1.0.0 Official Release
+          tag_name: release-v1.0.${{ github.run_number }}
+          name: Aneqh Official APK v1.0.${{ github.run_number }}
           body: |
-            ## 🎉 ANEQH Official App Release
+            ## 📱 ANEQH Official App APK
             - **App Name**: Aneqh
-            - **Features**: Inspector Chalisa 12 Chapters, Speed Quiz Drills, 10x Solvers, Formula Cheat Sheets.
-            - **Direct APK**: Download `Aneqh-v1.0-debug.apk` below and install directly on your Android phone!
-          files: release_apk/Aneqh-v1.0-debug.apk
+            - **Contents**: Inspector Chalisa 12 Chapters, Speed Quiz Drills, 10x Solvers, Formula Cheat Sheets.
+            - **Download**: Click `Aneqh-debug.apk` below to download and install on your phone.
+          files: release_apk/Aneqh-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
