@@ -33,6 +33,7 @@ import com.example.ui.components.StatCard
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppScreen
 import com.example.ui.viewmodel.CalculationViewModel
+import com.example.ui.viewmodel.AppDictionary.tr
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,8 +100,8 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Anek Calculation",
-                subtitle = if (uiState.appLanguage == com.example.ui.viewmodel.AppLanguage.HINDI) "SSC CGL Math Speed Maker" else "SSC CGL Math Speed Maker",
+                title = tr("app_title", uiState.appLanguage),
+                subtitle = tr("app_subtitle", uiState.appLanguage),
                 streak = uiState.userStats.currentStreak,
                 showBackButton = false,
                 currentLanguage = uiState.appLanguage,
@@ -130,7 +131,8 @@ fun HomeScreen(
                     },
                     onLogoClick = {
                         showLogoDialog = true
-                    }
+                    },
+                    lang = uiState.appLanguage
                 )
             }
 
@@ -236,7 +238,7 @@ fun HomeScreen(
                         }
                         item {
                             QuickActionChip(
-                                title = "📈 CI & SI Rate Sheet",
+                                title = tr("ci_si_rates", uiState.appLanguage),
                                 subtitle = "2 & 3 Yrs",
                                 color = AccentPurple,
                                 onClick = { viewModel.navigateTo(AppScreen.CHEAT_SHEETS) }
@@ -244,10 +246,26 @@ fun HomeScreen(
                         }
                         item {
                             QuickActionChip(
-                                title = "🧊 3D Visual Math",
+                                title = tr("visual_math", uiState.appLanguage),
                                 subtitle = "Algebra Graphs",
                                 color = AccentOrange,
                                 onClick = { viewModel.navigateTo(AppScreen.ALGEBRA_GRAPH) }
+                            )
+                        }
+                        item {
+                            QuickActionChip(
+                                title = tr("pyq_tests", uiState.appLanguage),
+                                subtitle = tr("pyq_tests_sub", uiState.appLanguage),
+                                color = AccentEmerald,
+                                onClick = { viewModel.navigateTo(AppScreen.PYQ_TESTS) }
+                            )
+                        }
+                        item {
+                            QuickActionChip(
+                                title = tr("calculator", uiState.appLanguage),
+                                subtitle = tr("calculator_sub", uiState.appLanguage),
+                                color = AccentCyan,
+                                onClick = { viewModel.navigateTo(AppScreen.CALCULATOR) }
                             )
                         }
                     }
@@ -320,7 +338,8 @@ fun HomeScreen(
 private fun HeroDrillBanner(
     onStartSpeedDrill: () -> Unit,
     onOpenSolvers: () -> Unit,
-    onLogoClick: () -> Unit = {}
+    onLogoClick: () -> Unit = {},
+    lang: com.example.ui.viewmodel.AppLanguage = com.example.ui.viewmodel.AppLanguage.ENGLISH
 ) {
     Surface(
         shape = RoundedCornerShape(20.dp),

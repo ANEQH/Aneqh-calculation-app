@@ -544,82 +544,14 @@ private fun SolverCardWrapper(
 
 @Composable
 private fun SolverResultDisplay(result: CalculationSolvers.SolverResult) {
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = PrimaryIndigo.copy(alpha = 0.08f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryIndigo.copy(alpha = 0.3f)),
+    val stepsText = result.steps.mapIndexed { index, step -> "${index + 1}. $step" }.joinToString("\n")
+    val fullText = stepsText + if (result.mentalNote.isNotEmpty()) "\n\n💡 Note: ${result.mentalNote}" else ""
+    
+    com.example.ui.components.NotebookPage(
+        title = "${result.methodTitle}\n(Ans: ${result.finalAnswer})",
+        text = fullText,
         modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = result.methodTitle,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = PrimaryIndigo
-                )
-                Surface(
-                    color = AccentEmerald.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "= ${result.finalAnswer}",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            fontFamily = FontFamily.Monospace,
-                            color = AccentEmerald
-                        ),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                    )
-                }
-            }
-
-            Divider(color = PrimaryIndigo.copy(alpha = 0.2f), thickness = 1.dp)
-
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                result.steps.forEach { step ->
-                    Text(
-                        text = step,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp,
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            Surface(
-                color = AccentAmber.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Bolt,
-                        contentDescription = null,
-                        tint = AccentOrange,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = result.mentalNote,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 12.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-    }
+    )
 }
 
 

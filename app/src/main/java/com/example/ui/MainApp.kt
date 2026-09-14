@@ -144,6 +144,8 @@ fun MainApp(
                 AppScreen.CHEAT_SHEETS -> CheatSheetScreen(viewModel = viewModel)
                 AppScreen.STATS -> StatsScreen(viewModel = viewModel)
                 AppScreen.ALGEBRA_GRAPH -> AlgebraGraphScreen(viewModel = viewModel)
+                AppScreen.PYQ_TESTS -> PyqTestsScreen(viewModel = viewModel)
+                AppScreen.CALCULATOR -> CalculatorScreen(viewModel = viewModel)
             }
         }
     }

@@ -24,7 +24,9 @@ enum class AppScreen {
     SOLVERS,
     CHEAT_SHEETS,
     STATS,
-    ALGEBRA_GRAPH
+    ALGEBRA_GRAPH,
+    PYQ_TESTS,
+    CALCULATOR
 }
 
 data class QuizState(

@@ -58,7 +58,9 @@ fun CheatSheetScreen(
                 showBackButton = true,
                 onBackClick = { viewModel.navigateTo(AppScreen.HOME) },
                 onStatsClick = { viewModel.navigateTo(AppScreen.STATS) },
-                onThemeToggle = { viewModel.toggleTheme() }
+                onThemeToggle = { viewModel.toggleTheme() },
+                onLanguageToggle = { viewModel.toggleLanguage() },
+                currentLanguage = uiState.appLanguage
             )
         },
         modifier = modifier
