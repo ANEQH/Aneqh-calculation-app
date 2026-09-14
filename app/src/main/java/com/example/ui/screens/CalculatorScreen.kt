@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.AppTopBar
@@ -41,9 +40,17 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
         when (btn) {
             "C" -> displayText = "0"
             "DEL" -> if (displayText.length > 1) displayText = displayText.dropLast(1) else displayText = "0"
-            "=" -> displayText = "Done" // simplified
+            "=" -> {
+                try {
+                    val exp = displayText.replace("×", "*").replace("÷", "/")
+                    val res = calculateBasic(exp)
+                    displayText = if (res == res.toLong().toDouble()) res.toLong().toString() else res.toString()
+                } catch (e: Exception) {
+                    displayText = "Error"
+                }
+            }
             else -> {
-                if (displayText == "0" || displayText == "Done") displayText = btn
+                if (displayText == "0" || displayText == "Done" || displayText == "Error") displayText = btn
                 else displayText += btn
             }
         }
@@ -115,4 +122,60 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
             }
         }
     }
+}
+
+fun calculateBasic(expr: String): Double {
+    return object : Any() {
+        var pos = -1
+        var ch = 0
+        fun nextChar() {
+            ch = if (++pos < expr.length) expr[pos].code else -1
+        }
+        fun eat(charToEat: Int): Boolean {
+            while (ch == ' '.code) nextChar()
+            if (ch == charToEat) {
+                nextChar()
+                return true
+            }
+            return false
+        }
+        fun parse(): Double {
+            nextChar()
+            val x = parseExpression()
+            if (pos < expr.length) throw RuntimeException("Unexpected: " + ch.toChar())
+            return x
+        }
+        fun parseExpression(): Double {
+            var x = parseTerm()
+            while (true) {
+                if (eat('+'.code)) x += parseTerm()
+                else if (eat('-'.code)) x -= parseTerm()
+                else return x
+            }
+        }
+        fun parseTerm(): Double {
+            var x = parseFactor()
+            while (true) {
+                if (eat('*'.code)) x *= parseFactor()
+                else if (eat('/'.code)) x /= parseFactor()
+                else return x
+            }
+        }
+        fun parseFactor(): Double {
+            if (eat('+'.code)) return parseFactor()
+            if (eat('-'.code)) return -parseFactor()
+            var x: Double
+            val startPos = pos
+            if (eat('('.code)) {
+                x = parseExpression()
+                eat(')'.code)
+            } else if (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) {
+                while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) nextChar()
+                x = expr.substring(startPos, pos).toDouble()
+            } else {
+                throw RuntimeException("Unexpected: " + ch.toChar())
+            }
+            return x
+        }
+    }.parse()
 }

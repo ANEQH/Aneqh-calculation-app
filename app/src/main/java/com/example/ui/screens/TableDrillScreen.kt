@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -41,15 +43,13 @@ fun TableDrillScreen(viewModel: CalculationViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val lang = uiState.appLanguage
     
-    // Hold an ever-growing list of questions
+    var difficulty by remember { mutableStateOf("Easy") }
     val questions = remember { mutableStateListOf<DrillQuestion>() }
     
-    // Generate initial 50
-    LaunchedEffect(Unit) {
-        if (questions.isEmpty()) {
-            for (i in 1..50) {
-                questions.add(generateDrillQuestion(i))
-            }
+    LaunchedEffect(difficulty) {
+        questions.clear()
+        for (i in 1..50) {
+            questions.add(generateDrillQuestion(i, difficulty))
         }
     }
 
@@ -67,22 +67,36 @@ fun TableDrillScreen(viewModel: CalculationViewModel) {
             )
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            itemsIndexed(questions) { index, q ->
-                DrillCard(q, index + 1) { isCorrect ->
-                    if (isCorrect) viewModel.submitDrillAnswer(true)
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Easy", "Hard").forEach { diff ->
+                    FilterChip(
+                        selected = difficulty == diff,
+                        onClick = { difficulty = diff },
+                        label = { Text(diff + " Mode", fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = if(diff == "Easy") AccentEmerald else AccentRose,
+                            selectedLabelColor = Color.White
+                        )
+                    )
                 }
-                
-                // Endless scrolling generation
-                if (index == questions.size - 5) {
-                    LaunchedEffect(index) {
-                        val currentSize = questions.size
-                        for (i in 1..50) {
-                            questions.add(generateDrillQuestion(currentSize + i))
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                itemsIndexed(questions) { index, q ->
+                    DrillCard(q, index + 1) { isCorrect ->
+                        if (isCorrect) viewModel.submitDrillAnswer(true)
+                    }
+                    
+                    if (index == questions.size - 5) {
+                        LaunchedEffect(index) {
+                            val currentSize = questions.size
+                            for (i in 1..50) {
+                                questions.add(generateDrillQuestion(currentSize + i, difficulty))
+                            }
                         }
                     }
                 }
@@ -91,15 +105,15 @@ fun TableDrillScreen(viewModel: CalculationViewModel) {
     }
 }
 
-fun generateDrillQuestion(id: Int): DrillQuestion {
-    val n1 = Random.nextInt(2, 31) // 2 to 30
-    val n2 = Random.nextInt(2, 11) // 2 to 10
+fun generateDrillQuestion(id: Int, difficulty: String = "Easy"): DrillQuestion {
+    val n1 = if (difficulty == "Easy") Random.nextInt(2, 16) else Random.nextInt(16, 31)
+    val n2 = if (difficulty == "Easy") Random.nextInt(2, 11) else Random.nextInt(11, 21)
     val correct = n1 * n2
     
     val optionsSet = mutableSetOf(correct)
     while (optionsSet.size < 4) {
         val fakeN1 = Random.nextInt(2, 31)
-        val fakeN2 = Random.nextInt(2, 11)
+        val fakeN2 = Random.nextInt(2, 21)
         val fakeAns = fakeN1 * fakeN2
         if (fakeAns != correct && fakeAns > 0) {
             optionsSet.add(fakeAns)
@@ -155,7 +169,6 @@ fun DrillCard(q: DrillQuestion, qNumber: Int, onAnswer: (Boolean) -> Unit) {
                     isSubmitted && isSelected && !isCorrect -> AccentRose
                     else -> Color.Transparent
                 }
-
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = bgColor,
