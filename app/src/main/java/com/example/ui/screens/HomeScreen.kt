@@ -241,6 +241,14 @@ fun HomeScreen(
                                 onClick = { viewModel.navigateTo(AppScreen.CHEAT_SHEETS) }
                             )
                         }
+                        item {
+                            QuickActionChip(
+                                title = "🧊 3D Visual Math",
+                                subtitle = "Algebra Graphs",
+                                color = AccentOrange,
+                                onClick = { viewModel.navigateTo(AppScreen.ALGEBRA_GRAPH) }
+                            )
+                        }
                     }
                 }
             }

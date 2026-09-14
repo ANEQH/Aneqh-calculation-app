@@ -143,6 +143,7 @@ fun MainApp(
                 AppScreen.SOLVERS -> SolversScreen(viewModel = viewModel)
                 AppScreen.CHEAT_SHEETS -> CheatSheetScreen(viewModel = viewModel)
                 AppScreen.STATS -> StatsScreen(viewModel = viewModel)
+                AppScreen.ALGEBRA_GRAPH -> AlgebraGraphScreen(viewModel = viewModel)
             }
         }
     }

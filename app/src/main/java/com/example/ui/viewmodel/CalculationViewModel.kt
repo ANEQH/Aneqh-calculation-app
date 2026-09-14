@@ -23,7 +23,8 @@ enum class AppScreen {
     SPEED_QUIZ,
     SOLVERS,
     CHEAT_SHEETS,
-    STATS
+    STATS,
+    ALGEBRA_GRAPH
 }
 
 data class QuizState(
