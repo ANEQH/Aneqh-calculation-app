@@ -69,7 +69,7 @@ fun HomeScreen(
             },
             title = {
                 Text(
-                    text = "ANEQH Official Insignia",
+                    text = "ANEK Official Insignia",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -99,10 +99,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Aneqh",
-                subtitle = "Inspector Chalisa Speed Math (10x Faster)",
+                title = "Anek Calculation",
+                subtitle = if (uiState.appLanguage == com.example.ui.viewmodel.AppLanguage.HINDI) "SSC CGL Math Speed Maker" else "SSC CGL Math Speed Maker",
                 streak = uiState.userStats.currentStreak,
                 showBackButton = false,
+                currentLanguage = uiState.appLanguage,
+                onLanguageToggle = { viewModel.toggleLanguage() },
                 onStatsClick = { viewModel.navigateTo(AppScreen.STATS) }
             )
         },
@@ -267,6 +269,7 @@ fun HomeScreen(
             items(filteredChapters) { chapter ->
                 ChapterCard(
                     chapter = chapter,
+                    language = uiState.appLanguage,
                     onClick = { viewModel.selectChapter(chapter) },
                     onStartQuiz = { viewModel.startSpeedQuiz(questionCount = 8, chapterId = chapter.id) }
                 )
@@ -314,7 +317,7 @@ private fun HeroDrillBanner(
                         border = androidx.compose.foundation.BorderStroke(1.dp, AccentAmber)
                     ) {
                         Text(
-                            text = "OFFICIAL ANEQH CHALISA",
+                            text = "OFFICIAL ANEK CHALISA",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 1.sp
@@ -355,7 +358,7 @@ private fun HeroDrillBanner(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "ANEQH Speed Math",
+                            text = "ANEK Speed Math",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color.White
@@ -363,7 +366,7 @@ private fun HeroDrillBanner(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Inspector Chalisa mental shortcuts for 10x faster calculations in competitive exams.",
+                            text = "Mental shortcuts for 10x faster calculations in SSC CGL.",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = Color(0xFFE0E7FF),
                                 fontSize = 12.sp,
@@ -470,9 +473,13 @@ private fun QuickActionChip(
 @Composable
 private fun ChapterCard(
     chapter: Chapter,
+    language: com.example.ui.viewmodel.AppLanguage = com.example.ui.viewmodel.AppLanguage.HINDI,
     onClick: () -> Unit,
     onStartQuiz: () -> Unit
 ) {
+    val title = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) chapter.titleHindi else chapter.titleEnglish
+    val subtitle = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) chapter.titleEnglish else chapter.titleHindi
+
     val iconVector = when (chapter.iconName) {
         "plus" -> Icons.Default.Add
         "minus" -> Icons.Default.Remove
@@ -536,7 +543,7 @@ private fun ChapterCard(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "${chapter.id}. ${chapter.titleHindi}",
+                                text = "${chapter.id}. $title",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
@@ -545,7 +552,7 @@ private fun ChapterCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "(${chapter.titleEnglish})",
+                                text = "($subtitle)",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 12.sp

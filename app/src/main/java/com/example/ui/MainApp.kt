@@ -135,6 +135,7 @@ fun MainApp(
                 .padding(innerPadding)
         ) {
             when (uiState.currentScreen) {
+                AppScreen.SPLASH -> SplashScreen(viewModel = viewModel)
                 AppScreen.HOME -> HomeScreen(viewModel = viewModel)
                 AppScreen.CHAPTER_DETAIL -> ChapterScreen(viewModel = viewModel)
                 AppScreen.PRACTICE_QUESTION -> PracticeQuestionScreen(viewModel = viewModel)

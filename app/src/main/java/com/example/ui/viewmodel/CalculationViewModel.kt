@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 enum class AppScreen {
+    SPLASH,
     HOME,
     CHAPTER_DETAIL,
     PRACTICE_QUESTION,
@@ -48,8 +49,10 @@ data class UserQuizAnswer(
     val timeSpentSeconds: Int
 )
 
+enum class AppLanguage { HINDI, ENGLISH }
+
 data class UiState(
-    val currentScreen: AppScreen = AppScreen.HOME,
+    val currentScreen: AppScreen = AppScreen.SPLASH,
     val selectedChapter: Chapter? = null,
     val selectedType: CalculationType? = null,
     val currentExerciseIndex: Int = 0,
@@ -58,7 +61,8 @@ data class UiState(
     val showExerciseSolution: Boolean = false,
     val searchQuery: String = "",
     val quizState: QuizState = QuizState(),
-    val userStats: UserStats = UserStats()
+    val userStats: UserStats = UserStats(),
+    val appLanguage: AppLanguage = AppLanguage.HINDI
 )
 
 class CalculationViewModel(application: Application) : AndroidViewModel(application) {
@@ -82,6 +86,8 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
         val quizzesCompleted = prefs.getInt("quizzes_completed", 0)
         val bestScore = prefs.getInt("best_score", 0)
         val lastScore = prefs.getInt("last_score", 0)
+        val langName = prefs.getString("app_language", AppLanguage.HINDI.name) ?: AppLanguage.HINDI.name
+        val language = try { AppLanguage.valueOf(langName) } catch (e: Exception) { AppLanguage.HINDI }
 
         _uiState.update {
             it.copy(
@@ -93,8 +99,17 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
                     speedQuizzesCompleted = quizzesCompleted,
                     bestScore = bestScore,
                     lastScore = lastScore
-                )
+                ),
+                appLanguage = language
             )
+        }
+    }
+
+    fun toggleLanguage() {
+        _uiState.update { 
+            val newLang = if (it.appLanguage == AppLanguage.HINDI) AppLanguage.ENGLISH else AppLanguage.HINDI
+            prefs.edit().putString("app_language", newLang.name).apply()
+            it.copy(appLanguage = newLang)
         }
     }
 

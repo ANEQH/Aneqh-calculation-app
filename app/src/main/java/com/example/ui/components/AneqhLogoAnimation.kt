@@ -472,8 +472,8 @@ private fun DrawScope.drawAneqhTextShape(
     val goldShine = Color(0xFFD97706)
     val strokeWidth = unit * 1.2f
 
-    // Total width ~ 34 unit
-    val startX = centerX - unit * 16.5f
+    // Total width for ANEK is roughly 27 units
+    val startX = centerX - unit * 13.5f
 
     // 1. 'A'
     val pathA = Path().apply {
@@ -507,37 +507,27 @@ private fun DrawScope.drawAneqhTextShape(
     }
     drawPath(path = pathE, color = navyColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
 
-    // 4. 'Q'
-    val qX = startX + unit * 22f
-    val pathQ = Path().apply {
-        addOval(androidx.compose.ui.geometry.Rect(qX, centerY - unit * 3f, qX + unit * 5f, centerY + unit * 2.8f))
-        moveTo(qX + unit * 3f, centerY + unit * 1.2f)
-        lineTo(qX + unit * 5.8f, centerY + unit * 3.5f)
+    // 4. 'K'
+    val kX = startX + unit * 22f
+    val pathK = Path().apply {
+        moveTo(kX, centerY - unit * 3f)
+        lineTo(kX, centerY + unit * 3f)
+        moveTo(kX + unit * 4.5f, centerY - unit * 3f)
+        lineTo(kX + unit * 1f, centerY)
+        lineTo(kX + unit * 4.5f, centerY + unit * 3f)
     }
-    drawPath(path = pathQ, color = navyColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
+    drawPath(path = pathK, color = navyColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
 
-    // 5. 'H'
-    val hX = startX + unit * 29f
-    val pathH = Path().apply {
-        moveTo(hX, centerY - unit * 3f)
-        lineTo(hX, centerY + unit * 3f)
-        moveTo(hX + unit * 4.5f, centerY - unit * 3f)
-        lineTo(hX + unit * 4.5f, centerY + unit * 3f)
-        moveTo(hX, centerY)
-        lineTo(hX + unit * 4.5f, centerY)
-    }
-    drawPath(path = pathH, color = navyColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
-
-    // Subtle gold underline below ANEQH
+    // Subtle gold underline below ANEK
     val underlineY = centerY + unit * 5.2f
     drawLine(
         brush = Brush.horizontalGradient(
             colors = listOf(Color.Transparent, goldShine, Color(0xFFFDE047), goldShine, Color.Transparent),
-            startX = centerX - unit * 14f,
-            endX = centerX + unit * 14f
+            startX = centerX - unit * 12f,
+            endX = centerX + unit * 12f
         ),
-        start = Offset(centerX - unit * 14f, underlineY),
-        end = Offset(centerX + unit * 14f, underlineY),
+        start = Offset(centerX - unit * 12f, underlineY),
+        end = Offset(centerX + unit * 12f, underlineY),
         strokeWidth = unit * 0.75f,
         cap = StrokeCap.Round
     )

@@ -41,13 +41,18 @@ fun ChapterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val chapter = uiState.selectedChapter ?: return
 
+    val title = if (uiState.appLanguage == com.example.ui.viewmodel.AppLanguage.HINDI) chapter.titleHindi else chapter.titleEnglish
+    val subtitle = if (uiState.appLanguage == com.example.ui.viewmodel.AppLanguage.HINDI) chapter.titleEnglish else chapter.titleHindi
+
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "${chapter.id}. ${chapter.titleHindi}",
-                subtitle = "${chapter.titleEnglish} (Pages ${chapter.pageRange})",
+                title = "${chapter.id}. $title",
+                subtitle = "$subtitle (Pages ${chapter.pageRange})",
                 streak = uiState.userStats.currentStreak,
                 showBackButton = true,
+                currentLanguage = uiState.appLanguage,
+                onLanguageToggle = { viewModel.toggleLanguage() },
                 onBackClick = { viewModel.navigateTo(AppScreen.HOME) },
                 onStatsClick = { viewModel.navigateTo(AppScreen.STATS) }
             )
@@ -139,6 +144,7 @@ fun ChapterScreen(
             items(chapter.types) { calcType ->
                 TypeTechniqueCard(
                     calcType = calcType,
+                    language = uiState.appLanguage,
                     onPracticeClick = {
                         viewModel.startPracticeForType(calcType)
                     }
@@ -151,9 +157,15 @@ fun ChapterScreen(
 @Composable
 private fun TypeTechniqueCard(
     calcType: CalculationType,
+    language: com.example.ui.viewmodel.AppLanguage = com.example.ui.viewmodel.AppLanguage.HINDI,
     onPracticeClick: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(true) }
+    
+    val title = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) calcType.titleHindi else calcType.titleEnglish
+    val subtitle = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) calcType.titleEnglish else calcType.titleHindi
+    val hint = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) calcType.hintHindi else calcType.hintEnglish
+    val hintTitle = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) "💡 Hint (दिमाग में रखने का नियम):" else "💡 Mental Calculation Hint:"
 
     Surface(
         shape = RoundedCornerShape(18.dp),
@@ -195,7 +207,7 @@ private fun TypeTechniqueCard(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = calcType.titleHindi,
+                            text = title,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
@@ -203,7 +215,7 @@ private fun TypeTechniqueCard(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = calcType.titleEnglish,
+                            text = subtitle,
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -255,7 +267,7 @@ private fun TypeTechniqueCard(
                         }
                     }
 
-                    // Hindi Mental Trick Box
+                    // Hint Box
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = AccentAmber.copy(alpha = 0.1f),
@@ -264,7 +276,7 @@ private fun TypeTechniqueCard(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
-                                text = "💡 Hint (दिमाग में रखने का नियम):",
+                                text = hintTitle,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = AccentOrange
@@ -272,7 +284,7 @@ private fun TypeTechniqueCard(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = calcType.hintHindi,
+                                text = hint,
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
@@ -285,14 +297,14 @@ private fun TypeTechniqueCard(
                     // Worked Steps Breakdown
                     if (calcType.steps.isNotEmpty()) {
                         Text(
-                            text = "Step-by-Step Solution Breakdown:",
+                            text = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) "Step-by-Step Solution Breakdown:" else "Step-by-Step Solution:",
                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             calcType.steps.forEach { step ->
-                                StepRowItem(step = step)
+                                StepRowItem(step = step, language = language)
                             }
                         }
                     }
@@ -325,7 +337,9 @@ private fun TypeTechniqueCard(
 }
 
 @Composable
-private fun StepRowItem(step: CalculationStep) {
+private fun StepRowItem(step: CalculationStep, language: com.example.ui.viewmodel.AppLanguage) {
+    val explanation = if (language == com.example.ui.viewmodel.AppLanguage.HINDI) step.explanationHindi else step.explanationEnglish
+    
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
@@ -359,7 +373,7 @@ private fun StepRowItem(step: CalculationStep) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = step.explanationHindi,
+                    text = explanation,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

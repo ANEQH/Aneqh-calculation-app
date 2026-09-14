@@ -34,6 +34,8 @@ fun AppTopBar(
     subtitle: String? = null,
     streak: Int = 0,
     showBackButton: Boolean = false,
+    currentLanguage: com.example.ui.viewmodel.AppLanguage = com.example.ui.viewmodel.AppLanguage.HINDI,
+    onLanguageToggle: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onStatsClick: () -> Unit = {}
 ) {
@@ -72,6 +74,18 @@ fun AppTopBar(
             }
         },
         actions = {
+            // Language Toggle
+            TextButton(
+                onClick = onLanguageToggle,
+                modifier = Modifier.padding(end = 4.dp).testTag("top_bar_language_toggle")
+            ) {
+                Text(
+                    text = if (currentLanguage == com.example.ui.viewmodel.AppLanguage.HINDI) "HI/EN" else "EN/HI",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            
             // Streak badge
             Surface(
                 shape = RoundedCornerShape(16.dp),
