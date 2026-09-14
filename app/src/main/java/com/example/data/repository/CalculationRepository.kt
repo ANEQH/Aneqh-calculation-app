@@ -20,7 +20,9 @@ object CalculationRepository {
             createPercentageChapter(),
             createProfitLossChapter(),
             createSiCiChapter(),
-            createTimeWorkChapter()
+            createTimeWorkChapter(),
+            createSpeedTricksChapter(),
+            createSscCglEssentialsChapter()
         )
     }
 
@@ -811,6 +813,158 @@ object CalculationRepository {
         )
     }
 
+    private fun createSpeedTricksChapter(): Chapter {
+        return Chapter(
+            id = 13,
+            titleEnglish = "Vedic Speed Tricks",
+            titleHindi = "वैदिक स्पीड ट्रिक्स",
+            description = "Master extra speed math tricks: multiplication by 11, squaring numbers ending in 5, base multiplication, and digit sum.",
+            iconName = "flash_on",
+            pageRange = "Extra",
+            quickTip = "कैलकुलेशन में वैदिक गणित के ये तरीके आपका बहुत समय बचाएंगे।",
+            types = listOf(
+                CalculationType(
+                    typeNumber = 1,
+                    titleEnglish = "Multiply any number by 11",
+                    titleHindi = "किसी भी संख्या को 11 से गुणा करना",
+                    hintHindi = "35 × 11: 3 को शुरुआत में और 5 को अंत में लिखें। बीच में दोनों अंकों का योग (3+5=8) लिखें -> 385।",
+                    hintEnglish = "Write the first and last digits on the ends, and place the sum of adjacent digits in the middle.",
+                    formula = "ab × 11 = a | (a+b) | b",
+                    steps = listOf(
+                        CalculationStep("Step 1", "3 _ 5", "पहला और आखिरी अंक लिखें", "Write first and last digit"),
+                        CalculationStep("Step 2", "3 + 5 = 8", "अंकों को जोड़ें", "Add the digits"),
+                        CalculationStep("Step 3", "385", "बीच में योग रखें", "Place the sum in the middle")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "45 × 11 =", "495", "485", "455", "505", "a", "4 | 4+5 | 5 -> 495"),
+                        ExerciseProblem(2, "72 × 11 =", "792", "722", "812", "782", "a", "7 | 7+2 | 2 -> 792"),
+                        ExerciseProblem(3, "85 × 11 =", "935", "925", "855", "955", "a", "8 | 8+5=13 (carry 1) | 5 -> (8+1)35 = 935")
+                    )
+                ),
+                CalculationType(
+                    typeNumber = 2,
+                    titleEnglish = "Squaring numbers ending in 5",
+                    titleHindi = "5 पर समाप्त होने वाली संख्या का वर्ग",
+                    hintHindi = "65²: 5 का वर्ग 25 अंत में लिखें। 6 को उसके अगले अंक 7 से गुणा करें (6×7=42)। उत्तर 4225।",
+                    hintEnglish = "Multiply the tens digit by (tens digit + 1) and append 25 at the end.",
+                    formula = "(n5)² = [n × (n+1)] | 25",
+                    steps = listOf(
+                        CalculationStep("Step 1", "6 × (6 + 1) = 42", "दहाई अंक को उसके अगले अंक से गुणा करें", "Multiply tens digit by its next number"),
+                        CalculationStep("Step 2", "5² = 25", "5 का वर्ग लिखें", "Square of 5"),
+                        CalculationStep("Step 3", "4225", "दोनों को मिला दें", "Combine them")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "45² =", "2025", "2525", "1625", "2425", "a", "4×5 = 20, 5² = 25 -> 2025"),
+                        ExerciseProblem(2, "85² =", "7225", "6425", "7425", "8125", "a", "8×9 = 72, 5² = 25 -> 7225"),
+                        ExerciseProblem(3, "105² =", "11025", "10025", "11525", "10525", "a", "10×11 = 110, 5² = 25 -> 11025")
+                    )
+                ),
+                CalculationType(
+                    typeNumber = 3,
+                    titleEnglish = "Base Multiplication (Close to 100)",
+                    titleHindi = "बेस 100 गुणा",
+                    hintHindi = "104 × 106: दोनों 100 से 4 और 6 ज्यादा हैं। 104+6 = 110 और 4×6 = 24 -> 11024।",
+                    hintEnglish = "Cross add/subtract the deviation from 100, then append the product of the deviations.",
+                    formula = "(100+a)(100+b) = (100+a+b) | (a×b)",
+                    steps = listOf(
+                        CalculationStep("Step 1", "104 + 6 = 110", "क्रॉस जोड़ें (या घटाएं)", "Cross add deviations"),
+                        CalculationStep("Step 2", "4 × 6 = 24", "अंतर (deviations) का गुणा करें", "Multiply deviations"),
+                        CalculationStep("Step 3", "11024", "दोनों को मिला दें (दो अंक)", "Combine them (keep 2 digits)")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "103 × 107 =", "11021", "11010", "12121", "10721", "a", "103+7 = 110, 3×7 = 21 -> 11021"),
+                        ExerciseProblem(2, "96 × 98 =", "9408", "9208", "9508", "9608", "a", "96-2 = 94, (-4)×(-2) = 08 -> 9408"),
+                        ExerciseProblem(3, "105 × 109 =", "11445", "11545", "11345", "11645", "a", "105+9 = 114, 5×9 = 45 -> 11445")
+                    )
+                ),
+                CalculationType(
+                    typeNumber = 4,
+                    titleEnglish = "Multiplication by 9, 99, 999",
+                    titleHindi = "9, 99, 999 से त्वरित गुणा",
+                    hintHindi = "345 × 999: 345-1 = 344। 999-344 = 655। दोनों को मिला दें -> 344655।",
+                    hintEnglish = "Subtract 1 from the number, then subtract the result from 9s.",
+                    formula = "N × (9...9) = (N-1) | (9...9 - (N-1))",
+                    steps = listOf(
+                        CalculationStep("Step 1", "345 - 1 = 344", "संख्या में से 1 घटाएं", "Subtract 1 from the number"),
+                        CalculationStep("Step 2", "999 - 344 = 655", "परिणाम को 999 में से घटाएं", "Subtract result from 9s"),
+                        CalculationStep("Step 3", "344655", "दोनों को मिला दें", "Combine the two parts")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "78 × 99 =", "7722", "7822", "7712", "7622", "a", "78-1=77, 99-77=22 -> 7722"),
+                        ExerciseProblem(2, "456 × 999 =", "455544", "456544", "454544", "455444", "a", "456-1=455, 999-455=544 -> 455544"),
+                        ExerciseProblem(3, "83 × 99 =", "8217", "8317", "8117", "8417", "a", "83-1=82, 99-82=17 -> 8217")
+                    )
+                )
+            )
+        )
+    }
+
+    private fun createSscCglEssentialsChapter(): Chapter {
+        return Chapter(
+            id = 14,
+            titleEnglish = "SSC CGL Essentials",
+            titleHindi = "SSC CGL विशेष",
+            description = "Crucial tables, squares, cubes, Pythagorean triplets, and digital sum methods specifically required for SSC CGL.",
+            iconName = "star",
+            pageRange = "Formula",
+            quickTip = "SSC CGL में समय बचाने के लिए Digital Sum (C9) और Pythagorean Triplets याद रखना बहुत जरूरी है!",
+            types = listOf(
+                CalculationType(
+                    typeNumber = 1,
+                    titleEnglish = "Digital Sum (C9 Method)",
+                    titleHindi = "डिजिटल सम (C9 विधि)",
+                    hintHindi = "किसी भी संख्या के अंकों का योग तब तक करें जब तक 1 अंक न बचे। 9 को 0 मान लें। विकल्प छाँटने में बहुत उपयोगी।",
+                    hintEnglish = "Sum the digits until you get a single digit. Treat 9 as 0. Great for eliminating options in MCQs.",
+                    formula = "DS(a × b) = DS(a) × DS(b)",
+                    steps = listOf(
+                        CalculationStep("Step 1", "456 → 4+5+6 = 15 → 6", "अंकों का योग करें (9 को छोड़ें)", "Sum digits (ignore 9s)"),
+                        CalculationStep("Step 2", "73 × 456 → DS(1) × DS(6) = 6", "समीकरण पर लागू करें", "Apply to equation"),
+                        CalculationStep("Step 3", "Option with DS 6 is answer", "विकल्पों से मिलान करें", "Match with option DS")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "What is the DS of 8745?", "6", "5", "8", "9", "a", "8+7+4+5 = 24 -> 2+4 = 6 (or ignore 4+5=9, 8+7=15->6)"),
+                        ExerciseProblem(2, "Find DS of 342 × 71", "0 or 9", "1", "2", "3", "a", "342 (3+4+2=9=0). 0 × anything = 0")
+                    )
+                ),
+                CalculationType(
+                    typeNumber = 2,
+                    titleEnglish = "Pythagorean Triplets",
+                    titleHindi = "पाइथागोरियन ट्रिपलेट्स",
+                    hintHindi = "SSC Geometry और Trigonometry में सीधा उत्तर देने के लिए इन ट्रिपलेट्स को रट लें।",
+                    hintEnglish = "Memorize these to instantly solve Right Angled Triangles in SSC.",
+                    formula = "a² + b² = c² (e.g., 3-4-5, 5-12-13, 8-15-17, 7-24-25, 9-40-41)",
+                    steps = listOf(
+                        CalculationStep("Step 1", "3, 4, 5", "Basic triplet", "Base triplet"),
+                        CalculationStep("Step 2", "6, 8, 10", "Multiply by 2", "Scale by 2"),
+                        CalculationStep("Step 3", "5, 12, 13", "Another common triplet", "Another base")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "If sides are 7 and 24, hypotenuse is?", "25", "26", "23", "27", "a", "Triplet: 7, 24, 25"),
+                        ExerciseProblem(2, "If sides are 9 and 40, hypotenuse is?", "41", "42", "40", "39", "a", "Triplet: 9, 40, 41")
+                    )
+                ),
+                CalculationType(
+                    typeNumber = 3,
+                    titleEnglish = "Base 50 Squaring",
+                    titleHindi = "50 के आधार पर वर्ग",
+                    hintHindi = "54²: 50 से 4 ज्यादा है। 25 में 4 जोड़ें = 29। 4 का वर्ग 16। उत्तर 2916।",
+                    hintEnglish = "Compare with 50. Add/subtract deviation from 25. Append square of deviation.",
+                    formula = "(50 ± x)² = (25 ± x) | x²",
+                    steps = listOf(
+                        CalculationStep("Step 1", "54 = 50 + 4", "50 से अंतर", "Deviation from 50"),
+                        CalculationStep("Step 2", "25 + 4 = 29", "25 में अंतर जोड़ें", "Add deviation to 25"),
+                        CalculationStep("Step 3", "4² = 16 → 2916", "अंतर का वर्ग साथ में लिखें", "Append square of deviation")
+                    ),
+                    exercises = listOf(
+                        ExerciseProblem(1, "56² =", "3136", "3036", "3236", "2936", "a", "25+6 = 31, 6² = 36 -> 3136"),
+                        ExerciseProblem(2, "47² =", "2209", "2109", "2309", "2409", "a", "25-3 = 22, (-3)² = 09 -> 2209"),
+                        ExerciseProblem(3, "42² =", "1764", "1664", "1864", "1964", "a", "25-8 = 17, (-8)² = 64 -> 1764")
+                    )
+                )
+            )
+        )
+    }
+
     val fractionPercentTable: List<FractionPercentEntry> = listOf(
         FractionPercentEntry("1/1", "1.00", "100%", "100%"),
         FractionPercentEntry("1/2", "0.50", "50%", "50%"),
@@ -881,7 +1035,7 @@ object CalculationRepository {
         }
 
         // Also add dynamically generated questions for variety
-        pool.addAll(generateDynamicQuestions(30))
+        pool.addAll(generateDynamicQuestions(count * 5 + 500))
 
         return pool.shuffled().take(count)
     }
@@ -889,7 +1043,7 @@ object CalculationRepository {
     private fun generateDynamicQuestions(count: Int): List<QuizQuestion> {
         val list = mutableListOf<QuizQuestion>()
         repeat(count) {
-            when (Random.nextInt(6)) {
+            when (Random.nextInt(12)) {
                 0 -> {
                     // 2-digit addition
                     val a = Random.nextInt(20, 99)
@@ -1014,7 +1168,7 @@ object CalculationRepository {
                         )
                     )
                 }
-                else -> {
+                5 -> {
                     // CI 2 years
                     val r = listOf(2, 3, 4, 5, 6, 7, 8, 9, 10, 12).random()
                     val ciRate = 2 * r + (r * r) / 100.0
@@ -1036,6 +1190,158 @@ object CalculationRepository {
                             optionD = options[3],
                             correctOption = letter,
                             explanation = "2($r) + $r²/100 = $ansStr"
+                        )
+                    )
+                }
+                6 -> {
+                    // Vedic Multiply by 11
+                    val num = Random.nextInt(21, 89)
+                    val ans = num * 11
+                    val wrong1 = ans + 11
+                    val wrong2 = ans - 11
+                    val wrong3 = ans + 100
+                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(ans.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 13,
+                            chapterTitle = "Vedic Speed Tricks",
+                            questionText = "$num × 11 =",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "Split ${num/10} and ${num%10}, insert sum: ${num/10 + num%10}. Ans: $ans"
+                        )
+                    )
+                }
+                7 -> {
+                    // Base 50 Square
+                    val num = Random.nextInt(41, 59)
+                    val ans = num * num
+                    val wrong1 = ans + 100
+                    val wrong2 = ans - 100
+                    val wrong3 = ans + 10
+                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(ans.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 14,
+                            chapterTitle = "SSC CGL Essentials",
+                            questionText = "$num² =",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "25 + (${num - 50}) | (${num - 50})² = $ans"
+                        )
+                    )
+                }
+                8 -> {
+                    // Tables 12-25
+                    val a = Random.nextInt(12, 26)
+                    val b = Random.nextInt(5, 10)
+                    val ans = a * b
+                    val wrong1 = ans + a
+                    val wrong2 = ans - a
+                    val wrong3 = ans + 10
+                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(ans.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 14,
+                            chapterTitle = "SSC CGL Essentials",
+                            questionText = "$a × $b =",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "Table memory: $a × $b = $ans"
+                        )
+                    )
+                }
+                9 -> {
+                    // Digital Sum Concept
+                    val a = Random.nextInt(11, 45)
+                    val b = Random.nextInt(11, 45)
+                    val trueAns = a * b
+                    val dsA = a.toString().map { it.digitToInt() }.sum() % 9
+                    val dsB = b.toString().map { it.digitToInt() }.sum() % 9
+                    val dsAns = (dsA * dsB) % 9
+                    val correctDS = if (dsAns == 0) 9 else dsAns
+                    val wrong1 = (correctDS % 9) + 1
+                    val wrong2 = (wrong1 % 9) + 1
+                    val wrong3 = (wrong2 % 9) + 1
+                    val options = listOf(correctDS.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(correctDS.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 14,
+                            chapterTitle = "SSC CGL Essentials",
+                            questionText = "Digital Sum of ($a × $b) is?",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "DS($a) × DS($b) = $dsA × $dsB = $dsAns => $correctDS"
+                        )
+                    )
+                }
+                10 -> {
+                    // Squares ending in 5
+                    val tens = Random.nextInt(2, 12)
+                    val num = tens * 10 + 5
+                    val ans = num * num
+                    val wrong1 = (tens * (tens+2) * 100) + 25
+                    val wrong2 = (tens * tens * 100) + 25
+                    val wrong3 = ans + 1000
+                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(ans.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 13,
+                            chapterTitle = "Vedic Speed Tricks",
+                            questionText = "$num² =",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "($tens × ${tens+1}) | 25 = $ans"
+                        )
+                    )
+                }
+                else -> {
+                    // Base 100 Multiplication
+                    val a = Random.nextInt(101, 109)
+                    val b = Random.nextInt(101, 109)
+                    val ans = a * b
+                    val wrong1 = ans + 100
+                    val wrong2 = ans - 100
+                    val wrong3 = ans + 10
+                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                    val correctIdx = options.indexOf(ans.toString())
+                    val letter = listOf("a", "b", "c", "d")[correctIdx]
+                    list.add(
+                        QuizQuestion(
+                            chapterId = 13,
+                            chapterTitle = "Vedic Speed Tricks",
+                            questionText = "$a × $b =",
+                            optionA = options[0],
+                            optionB = options[1],
+                            optionC = options[2],
+                            optionD = options[3],
+                            correctOption = letter,
+                            explanation = "(100 + ${a-100} + ${b-100}) | (${a-100} × ${b-100}) = $ans"
                         )
                     )
                 }
