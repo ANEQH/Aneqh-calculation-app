@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Architecture
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.TrendingUp
@@ -24,6 +25,9 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.*
@@ -186,6 +190,23 @@ fun HomeScreen(
                         item { ChipCard(title = "SSC Syllabus", subtitle = "Tier 1 & 2", color = AccentRose, icon = Icons.Default.Checklist) { viewModel.navigateTo(AppScreen.SYLLABUS) } }
                         item { ChipCard(title = "Tables 1-30", subtitle = "Pahade", color = AccentAmber, icon = Icons.Default.GridOn) { viewModel.navigateTo(AppScreen.TABLES) } }
                         item { ChipCard(title = "Table Drill", subtitle = "Infinite MCQs", color = AccentCyan, icon = Icons.Default.FormatListNumbered) { viewModel.navigateTo(AppScreen.TABLE_DRILL) } }
+                    }
+                }
+            }
+
+            // Section: CRAZY FEATURES
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Crazy Features & Tricks",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        item { ChipCard(title = "Brain Gym", subtitle = "1M+ Questions", color = AccentRose, icon = Icons.Default.FitnessCenter) { viewModel.navigateTo(AppScreen.MATH_GYM) } }
+                        item { ChipCard(title = "Vedic Tricks", subtitle = "100+ Hacks", color = AccentAmber, icon = Icons.Default.Psychology) { viewModel.navigateTo(AppScreen.VEDIC_TRICKS) } }
+                        item { ChipCard(title = "Formulas", subtitle = "Flashcards", color = PrimaryIndigo, icon = Icons.Default.Style) { viewModel.navigateTo(AppScreen.FORMULA_CARDS) } }
+                        item { ChipCard(title = "Geometry", subtitle = "Shapes & Formula", color = AccentEmerald, icon = Icons.Default.Architecture) { viewModel.navigateTo(AppScreen.GEOMETRY) } }
                     }
                 }
             }

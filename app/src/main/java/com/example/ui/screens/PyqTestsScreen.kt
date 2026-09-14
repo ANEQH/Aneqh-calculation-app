@@ -160,7 +160,7 @@ fun PyqTestsScreen(viewModel: CalculationViewModel) {
     // Load initial batch
     LaunchedEffect(selectedTab) {
         pyqList.clear()
-        pyqList.addAll(generatePyqQuestions(selectedTab, 50, 1))
+        pyqList.addAll(generatePyqQuestions(selectedTab, 500, 1))
     }
 
     Scaffold(
@@ -229,9 +229,9 @@ fun PyqTestsScreen(viewModel: CalculationViewModel) {
                     )
                     
                     // Endless generation when reaching near bottom
-                    if (index == pyqList.size - 5) {
+                    if (index == pyqList.size - 10) {
                         LaunchedEffect(index) {
-                            val more = generatePyqQuestions(selectedTab, 50, pyqList.size + 1)
+                            val more = generatePyqQuestions(selectedTab, 200, pyqList.size + 1)
                             pyqList.addAll(more)
                         }
                     }

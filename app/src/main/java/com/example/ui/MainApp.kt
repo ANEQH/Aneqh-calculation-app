@@ -149,6 +149,10 @@ fun MainApp(
                 AppScreen.SYLLABUS -> SyllabusScreen(viewModel = viewModel)
                 AppScreen.TABLES -> TablesScreen(viewModel = viewModel)
                 AppScreen.TABLE_DRILL -> TableDrillScreen(viewModel = viewModel)
+                AppScreen.MATH_GYM -> MathGymScreen(viewModel = viewModel)
+                AppScreen.VEDIC_TRICKS -> VedicTricksScreen(viewModel = viewModel)
+                AppScreen.FORMULA_CARDS -> FormulaCardsScreen(viewModel = viewModel)
+                AppScreen.GEOMETRY -> GeometryScreen(viewModel = viewModel)
             }
         }
     }

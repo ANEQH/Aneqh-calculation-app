@@ -29,7 +29,11 @@ enum class AppScreen {
     CALCULATOR,
     SYLLABUS,
     TABLES,
-    TABLE_DRILL
+    TABLE_DRILL,
+    MATH_GYM,
+    VEDIC_TRICKS,
+    FORMULA_CARDS,
+    GEOMETRY
 }
 
 data class QuizState(
