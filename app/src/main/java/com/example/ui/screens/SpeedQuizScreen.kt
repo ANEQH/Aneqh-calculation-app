@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
@@ -432,6 +433,67 @@ private fun QuizResultScreen(
                                 modifier = Modifier.weight(1f).testTag("quiz_home_btn")
                             ) {
                                 Text("Home")
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Smart AI Performance Diagnostics & Prescription Card
+            item {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, AccentAmber.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth().testTag("smart_diagnostics_card")
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(AccentAmber.copy(alpha = 0.12f), Color.Transparent)
+                                )
+                            )
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = AccentOrange, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Smart AI Speed Diagnosis",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = AccentOrange
+                            )
+                        }
+
+                        val diagnosis = when {
+                            accuracy >= 90 -> "🔥 Superhuman Speed! Your Tier-1 Mental Accuracy is in the top 1% percentiles. Keep this momentum consistent."
+                            accuracy >= 70 -> "⚡ High Speed Cadet: Solid grip on mental calculations. Eliminate careless errors in options matching."
+                            accuracy >= 50 -> "📊 Developing Pace: You are solving correctly, but mental calculation takes 5-10s longer than ideal. Practice Vedic tricks."
+                            else -> "🎯 High Yield Focus Needed: Practice the Vedic Math 16 Sutras & reciprocal percentage values to double your solving speed without paper."
+                        }
+
+                        Text(
+                            text = diagnosis,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = PrimaryIndigo.copy(alpha = 0.1f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Lightbulb, contentDescription = null, tint = PrimaryIndigo, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Smart Tip: Always apply Digital Root check (mod 9) on big multiplication & square questions.",
+                                    fontSize = 12.sp,
+                                    color = PrimaryIndigo,
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
                         }
                     }

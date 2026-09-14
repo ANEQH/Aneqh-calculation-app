@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ui.components.AppTopBar
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppScreen
@@ -41,7 +43,8 @@ data class GymQuestion(
     val id: Int,
     val text: String,
     val options: List<String>,
-    val correct: String
+    val correct: String,
+    val smartTip: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,6 +136,7 @@ fun MathGymScreen(viewModel: CalculationViewModel) {
 fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficulty): GymQuestion {
     var text = ""
     var correct = ""
+    var tip = ""
     val optionsSet = mutableSetOf<String>()
 
     when (category) {
@@ -146,6 +150,12 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
                 val fake = ans + Random.nextInt(-15, 15) * n.let { if (it == 0) 5 else it }
                 if (fake > 0 && fake != ans) optionsSet.add(fake.toString())
             }
+            tip = when {
+                n % 10 == 5 -> "Ending in 5: ${n/10} × ${n/10 + 1} = ${(n/10)*(n/10 + 1)}, append 25 → $ans"
+                n in 40..60 -> "Base 50: 25 + (${n-50}) = ${25 + n - 50} | (${n-50})² = $ans"
+                n in 90..110 -> "Base 100: $n + (${n-100}) = ${n + n - 100} | (${n-100})² = $ans"
+                else -> "Identity: ($n)² = ${(n/10)*10}² + 2(${n/10*10})(${n%10}) + ${n%10}² = $ans"
+            }
         }
         GymCategory.CUBE -> {
             val n = if (difficulty == GymDifficulty.EASY) Random.nextInt(2, 11) else Random.nextInt(11, 25)
@@ -157,6 +167,7 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
                 val fake = ans + Random.nextInt(-10, 10) * n.let { if (it == 0) 2 else it }
                 if (fake > 0 && fake != ans) optionsSet.add(fake.toString())
             }
+            tip = "SSC Core Cube: $n × $n = ${n*n}, ${n*n} × $n = $ans. Memorize cubes up to 25!"
         }
         GymCategory.TABLES -> {
             val n1 = if (difficulty == GymDifficulty.EASY) Random.nextInt(2, 16) else Random.nextInt(12, 31)
@@ -169,6 +180,7 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
                 val fake = ans + Random.nextInt(-20, 20).let { if (it == 0) 5 else it }
                 if (fake > 0) optionsSet.add(fake.toString())
             }
+            tip = "Split & Add: ${(n1/10)*10} × $n2 (${(n1/10)*10 * n2}) + ${n1%10} × $n2 (${(n1%10) * n2}) = $ans"
         }
         GymCategory.ADDITION -> {
             val n1 = if (difficulty == GymDifficulty.EASY) Random.nextInt(10, 100) else Random.nextInt(100, 1000)
@@ -181,6 +193,7 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
                 val fake = ans + Random.nextInt(-20, 20).let { if (it == 0) 5 else it }
                 if (fake > 0) optionsSet.add(fake.toString())
             }
+            tip = "Left-to-Right Addition: Add major place values first, then append unit adjustments."
         }
         GymCategory.SUBTRACTION -> {
             val n1 = if (difficulty == GymDifficulty.EASY) Random.nextInt(20, 100) else Random.nextInt(200, 1000)
@@ -193,6 +206,7 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
                 val fake = ans + Random.nextInt(-20, 20).let { if (it == 0) 5 else it }
                 if (fake > 0) optionsSet.add(fake.toString())
             }
+            tip = "Distance Method: Jump from $n2 to nearest tens/hundreds, then reach $n1."
         }
         GymCategory.FRACTIONS -> {
             val easyFractions = listOf(
@@ -217,10 +231,11 @@ fun generateGymQuestion(id: Int, category: GymCategory, difficulty: GymDifficult
             optionsSet.add(allPercentVals[0])
             optionsSet.add(allPercentVals[1])
             optionsSet.add(allPercentVals[2])
+            tip = "Direct SSC Tier-1 standard conversion: ${pair.first} = ${pair.second}."
         }
     }
     
-    return GymQuestion(id, text, optionsSet.toList().shuffled(), correct)
+    return GymQuestion(id, text, optionsSet.toList().shuffled(), correct, tip)
 }
 
 @Composable
@@ -286,6 +301,27 @@ fun GymCard(q: GymQuestion, qNumber: Int, onAnswer: (Boolean) -> Unit) {
                             text = opt,
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal),
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            if (selectedOption != null && q.smartTip.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = AccentAmber.copy(alpha = 0.12f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AccentAmber.copy(alpha = 0.3f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Lightbulb, contentDescription = null, tint = AccentOrange, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "💡 ${q.smartTip}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = AccentOrange
                         )
                     }
                 }

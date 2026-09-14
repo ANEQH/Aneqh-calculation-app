@@ -66,5 +66,9 @@ data class UserStats(
     val bestStreak: Int = 0,
     val speedQuizzesCompleted: Int = 0,
     val bestScore: Int = 0,
-    val lastScore: Int = 0
+    val lastScore: Int = 0,
+    val totalFocusMinutes: Int = 0,
+    val completedFocusSessions: Int = 0,
+    val todayFocusMinutes: Int = 0,
+    val focusStreak: Int = 0
 )

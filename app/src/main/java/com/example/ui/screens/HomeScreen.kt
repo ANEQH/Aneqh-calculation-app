@@ -35,13 +35,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.repository.CalculationRepository
+import com.example.util.SmartMathAnalysis
+import com.example.util.SmartMathAssistant
 import com.example.ui.components.AneqhAnimatedLogo
 import com.example.ui.components.AppTopBar
 import com.example.ui.components.StatCard
@@ -60,6 +64,10 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val lang = uiState.appLanguage
     var showLogoDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val searchAnalysis = remember(searchQuery) {
+        if (searchQuery.isNotBlank()) SmartMathAssistant.analyze(searchQuery) else null
+    }
 
     if (showLogoDialog) {
         AlertDialog(
@@ -115,6 +123,167 @@ fun HomeScreen(
             contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp)
         ) {
             
+            // Section: Smart Universal Search & Quick Math Assistant
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth().testTag("smart_search_input"),
+                        placeholder = {
+                            Text(
+                                text = if (lang == AppLanguage.HINDI) "स्मार्ट AI सर्च (उदा: 75², 48×52, 3/8, focus, cube 12)..." else "Smart AI Math Search (e.g. 75², 48x52, 3/8, focus)...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 13.sp
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = PrimaryIndigo)
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryIndigo,
+                            unfocusedBorderColor = PrimaryIndigo.copy(alpha = 0.3f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        )
+                    )
+
+                    // Quick Smart Query Chips
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        val quickChips = listOf(
+                            "75²" to "75^2",
+                            "48 × 52" to "48 * 52",
+                            "3/8 in %" to "3/8",
+                            "15% of 840" to "15% of 840",
+                            "Cube 12" to "12^3",
+                            "√7056" to "sqrt 7056",
+                            "Triplet 8" to "triplet 8",
+                            "19 Table" to "19 table"
+                        )
+                        items(quickChips.size) { i ->
+                            val chip = quickChips[i]
+                            AssistChip(
+                                onClick = { searchQuery = chip.second },
+                                label = { Text(chip.first, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = PrimaryIndigo.copy(alpha = 0.08f),
+                                    labelColor = PrimaryIndigo
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryIndigo.copy(alpha = 0.25f))
+                            )
+                        }
+                    }
+
+                    // Smart Analysis Result Card
+                    if (searchAnalysis != null) {
+                        Surface(
+                            shape = RoundedCornerShape(18.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, PrimaryIndigo.copy(alpha = 0.5f)),
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp).testTag("smart_analysis_card")
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .background(
+                                        Brush.verticalGradient(
+                                            listOf(
+                                                PrimaryIndigo.copy(alpha = 0.12f),
+                                                Color.Transparent
+                                            )
+                                        )
+                                    )
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = searchAnalysis.title,
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = PrimaryIndigo,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = AccentEmerald.copy(alpha = 0.15f)
+                                    ) {
+                                        Text(
+                                            text = searchAnalysis.result,
+                                            fontWeight = FontWeight.Black,
+                                            fontSize = 13.sp,
+                                            color = AccentEmerald,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                }
+
+                                Text(
+                                    text = "⚡ विधि: ${searchAnalysis.method}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    searchAnalysis.explanationSteps.forEach { step ->
+                                        Text(
+                                            text = "• $step",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = AccentAmber.copy(alpha = 0.12f),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "💡 ${searchAnalysis.mentalShortcut}",
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                        color = AccentOrange,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+
+                                if (searchAnalysis.digitalRootCheck != null) {
+                                    Text(
+                                        text = "🔍 ${searchAnalysis.digitalRootCheck}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = AccentCyan,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                if (searchAnalysis.targetScreen != null) {
+                                    Button(
+                                        onClick = { viewModel.navigateTo(searchAnalysis.targetScreen) },
+                                        modifier = Modifier.fillMaxWidth().testTag("launch_smart_target_btn")
+                                    ) {
+                                        Icon(Icons.Default.Launch, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Open Feature")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Section: Stats & Daily Target
             item {
                 val stats = uiState.userStats
@@ -198,15 +367,194 @@ fun HomeScreen(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "Crazy Features & Tricks",
+                        text = "Crazy Features & Study Suite",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 18.sp),
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        item { ChipCard(title = "Focus Clock", subtitle = "Pomodoro & Zen", color = PrimaryIndigo, icon = Icons.Default.Timer) { viewModel.navigateTo(AppScreen.FOCUS_CLOCK) } }
+                        item { ChipCard(title = "Study Planner", subtitle = "Exam Countdown", color = AccentCyan, icon = Icons.Default.CalendarToday) { viewModel.navigateTo(AppScreen.STUDY_PLANNER) } }
+                        item { ChipCard(title = "Geometry 3D", subtitle = "Realistic Shapes", color = AccentEmerald, icon = Icons.Default.Architecture) { viewModel.navigateTo(AppScreen.GEOMETRY) } }
                         item { ChipCard(title = "Brain Gym", subtitle = "1M+ Questions", color = AccentRose, icon = Icons.Default.FitnessCenter) { viewModel.navigateTo(AppScreen.MATH_GYM) } }
                         item { ChipCard(title = "Vedic Tricks", subtitle = "100+ Hacks", color = AccentAmber, icon = Icons.Default.Psychology) { viewModel.navigateTo(AppScreen.VEDIC_TRICKS) } }
                         item { ChipCard(title = "Formulas", subtitle = "Flashcards", color = PrimaryIndigo, icon = Icons.Default.Style) { viewModel.navigateTo(AppScreen.FORMULA_CARDS) } }
-                        item { ChipCard(title = "Geometry", subtitle = "Shapes & Formula", color = AccentEmerald, icon = Icons.Default.Architecture) { viewModel.navigateTo(AppScreen.GEOMETRY) } }
+                    }
+                }
+            }
+
+            // Spotlight: Focus Mode Clock (Pomodoro & Zen Study)
+            item {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, PrimaryIndigo.copy(alpha = 0.4f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { viewModel.navigateTo(AppScreen.FOCUS_CLOCK) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        PrimaryIndigo.copy(alpha = 0.18f),
+                                        AccentRose.copy(alpha = 0.12f)
+                                    )
+                                )
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = PrimaryIndigo.copy(alpha = 0.25f),
+                                    modifier = Modifier.size(50.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            Icons.Default.Timer,
+                                            contentDescription = null,
+                                            tint = PrimaryIndigo,
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = if (lang == AppLanguage.HINDI) "फोकस मोड क्लॉक" else "Focus Mode Clock",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = PrimaryIndigo
+                                        ) {
+                                            Text(
+                                                text = "POMODORO",
+                                                color = Color.White,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = if (lang == AppLanguage.HINDI)
+                                            "25m / 50m डीप स्टडी • अल्फा वेव्स ऑडियो • ज़ेन मोड"
+                                        else
+                                            "25m / 50m Deep Study • Alpha Waves Audio • Zen Fullscreen",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Icon(
+                                Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = PrimaryIndigo,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Spotlight: 3D Geometry Studio
+            item {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, AccentEmerald.copy(alpha = 0.4f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { viewModel.navigateTo(AppScreen.GEOMETRY) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        AccentEmerald.copy(alpha = 0.18f),
+                                        PrimaryIndigo.copy(alpha = 0.12f)
+                                    )
+                                )
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = AccentEmerald.copy(alpha = 0.25f),
+                                    modifier = Modifier.size(50.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            Icons.Default.Architecture,
+                                            contentDescription = null,
+                                            tint = AccentEmerald,
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "Realistic Geometry 3D",
+                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = AccentEmerald
+                                        ) {
+                                            Text(
+                                                text = "3D LAB",
+                                                color = Color.White,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "Cube, Cylinder, Cone, Sphere with live dimension sliders & exam hacks",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Icon(
+                                Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = AccentEmerald,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }

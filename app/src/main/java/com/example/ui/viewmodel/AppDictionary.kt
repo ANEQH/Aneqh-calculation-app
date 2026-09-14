@@ -54,7 +54,11 @@ object AppDictionary {
         "concept_book" to "📚 1000x Concept Book",
         "daily_target" to "🎯 Daily Target",
         "live_test" to "🔴 Live All India Test",
-        "mock_analysis" to "📉 Mock Analysis"
+        "mock_analysis" to "📉 Mock Analysis",
+        "focus_clock" to "⏱️ Focus Mode Clock",
+        "focus_clock_sub" to "Pomodoro & Deep Zen Study",
+        "study_planner" to "📅 Study Planner & Exam Countdown",
+        "study_planner_sub" to "Daily Targets & Aspirant Tracker"
     )
 
     private val hindiMap = mapOf(
@@ -102,6 +106,10 @@ object AppDictionary {
         "concept_book" to "📚 1000x कांसेप्ट बुक",
         "daily_target" to "🎯 दैनिक लक्ष्य",
         "live_test" to "🔴 लाइव ऑल इंडिया टेस्ट",
-        "mock_analysis" to "📉 मॉक एनालिसिस"
+        "mock_analysis" to "📉 मॉक एनालिसिस",
+        "focus_clock" to "⏱️ फोकस मोड क्लॉक",
+        "focus_clock_sub" to "पोमोडोरो व डीप अध्ययन टाइमर",
+        "study_planner" to "📅 स्टडी प्लानर व परीक्षा काउंटडाउन",
+        "study_planner_sub" to "दैनिक लक्ष्य व स्टडी ट्रैकर"
     )
 }

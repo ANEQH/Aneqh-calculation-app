@@ -33,8 +33,25 @@ enum class AppScreen {
     MATH_GYM,
     VEDIC_TRICKS,
     FORMULA_CARDS,
-    GEOMETRY
+    GEOMETRY,
+    FOCUS_CLOCK,
+    STUDY_PLANNER
 }
+
+data class StudyTargetItem(
+    val id: String,
+    val title: String,
+    val category: String,
+    val isCompleted: Boolean = false
+)
+
+val defaultDailyTargets = listOf(
+    StudyTargetItem("t1", "Solve 30 Math PYQs (Algebra & Geometry)", "Practice", false),
+    StudyTargetItem("t2", "Complete 2 Pomodoro Focus Sessions (50 min)", "Focus", false),
+    StudyTargetItem("t3", "Vedic Speed Drill: 2-Digit Multiplication", "Speed", false),
+    StudyTargetItem("t4", "Revise Tables 12 to 25 & Fraction Percentages", "Memory", false),
+    StudyTargetItem("t5", "1 Mixed Mock Speed Quiz Test (10 Qs)", "Exam", false)
+)
 
 data class QuizState(
     val isActive: Boolean = false,
@@ -72,6 +89,7 @@ data class UiState(
     val searchQuery: String = "",
     val quizState: QuizState = QuizState(),
     val userStats: UserStats = UserStats(),
+    val dailyTargets: List<StudyTargetItem> = defaultDailyTargets,
     val appLanguage: AppLanguage = AppLanguage.HINDI,
     val isDarkMode: Boolean = true
 )
@@ -97,6 +115,10 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
         val quizzesCompleted = prefs.getInt("quizzes_completed", 0)
         val bestScore = prefs.getInt("best_score", 0)
         val lastScore = prefs.getInt("last_score", 0)
+        val totalFocusMinutes = prefs.getInt("total_focus_minutes", 0)
+        val completedFocusSessions = prefs.getInt("completed_focus_sessions", 0)
+        val todayFocusMinutes = prefs.getInt("today_focus_minutes", 0)
+        val focusStreak = prefs.getInt("focus_streak", 0)
         val langName = prefs.getString("app_language", AppLanguage.HINDI.name) ?: AppLanguage.HINDI.name
         val language = try { AppLanguage.valueOf(langName) } catch (e: Exception) { AppLanguage.HINDI }
 
@@ -109,7 +131,11 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
                     bestStreak = bestStreak,
                     speedQuizzesCompleted = quizzesCompleted,
                     bestScore = bestScore,
-                    lastScore = lastScore
+                    lastScore = lastScore,
+                    totalFocusMinutes = totalFocusMinutes,
+                    completedFocusSessions = completedFocusSessions,
+                    todayFocusMinutes = todayFocusMinutes,
+                    focusStreak = focusStreak
                 ),
                 appLanguage = language
             )
@@ -137,9 +163,57 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
             putInt("quizzes_completed", newStats.speedQuizzesCompleted)
             putInt("best_score", newStats.bestScore)
             putInt("last_score", newStats.lastScore)
+            putInt("total_focus_minutes", newStats.totalFocusMinutes)
+            putInt("completed_focus_sessions", newStats.completedFocusSessions)
+            putInt("today_focus_minutes", newStats.todayFocusMinutes)
+            putInt("focus_streak", newStats.focusStreak)
             apply()
         }
         _uiState.update { it.copy(userStats = newStats) }
+    }
+
+    fun recordFocusSession(minutes: Int) {
+        val currentStats = _uiState.value.userStats
+        val newFocusMin = currentStats.totalFocusMinutes + minutes
+        val newTodayMin = currentStats.todayFocusMinutes + minutes
+        val newSessions = currentStats.completedFocusSessions + 1
+        val newFocusStreak = currentStats.focusStreak + 1
+        saveStats(
+            currentStats.copy(
+                totalFocusMinutes = newFocusMin,
+                todayFocusMinutes = newTodayMin,
+                completedFocusSessions = newSessions,
+                focusStreak = newFocusStreak
+            )
+        )
+    }
+
+    fun toggleDailyTarget(id: String) {
+        _uiState.update { state ->
+            val updated = state.dailyTargets.map { target ->
+                if (target.id == id) target.copy(isCompleted = !target.isCompleted) else target
+            }
+            state.copy(dailyTargets = updated)
+        }
+    }
+
+    fun addDailyTarget(title: String, category: String) {
+        if (title.isBlank()) return
+        val newItem = StudyTargetItem(
+            id = "target_${System.currentTimeMillis()}",
+            title = title.trim(),
+            category = category.trim(),
+            isCompleted = false
+        )
+        _uiState.update { state ->
+            state.copy(dailyTargets = state.dailyTargets + newItem)
+        }
+    }
+
+    fun removeDailyTarget(id: String) {
+        _uiState.update { state ->
+            state.copy(dailyTargets = state.dailyTargets.filterNot { it.id == id })
+        }
     }
 
     fun navigateTo(screen: AppScreen) {

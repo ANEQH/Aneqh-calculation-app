@@ -153,6 +153,8 @@ fun MainApp(
                 AppScreen.VEDIC_TRICKS -> VedicTricksScreen(viewModel = viewModel)
                 AppScreen.FORMULA_CARDS -> FormulaCardsScreen(viewModel = viewModel)
                 AppScreen.GEOMETRY -> GeometryScreen(viewModel = viewModel)
+                AppScreen.FOCUS_CLOCK -> FocusClockScreen(viewModel = viewModel)
+                AppScreen.STUDY_PLANNER -> StudyPlannerScreen(viewModel = viewModel)
             }
         }
     }
