@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.FractionPercentEntry
 import com.example.data.repository.CalculationRepository
+import com.example.data.repository.SscCglAdvancedMath
 import com.example.ui.components.AppTopBar
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppScreen
@@ -34,7 +35,8 @@ enum class CheatSheetTab {
     FRACTIONS_PERCENT,
     SQUARES_CUBES,
     CI_RATES,
-    RULES
+    RULES,
+    ADVANCED_MATH
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,10 +70,11 @@ fun CheatSheetScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Tab Selector
-            TabRow(
+            ScrollableTabRow(
                 selectedTabIndex = currentTab.ordinal,
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = PrimaryIndigo,
+                edgePadding = 8.dp,
                 modifier = Modifier.clip(RoundedCornerShape(12.dp))
             ) {
                 Tab(
@@ -94,6 +97,11 @@ fun CheatSheetScreen(
                     onClick = { currentTab = CheatSheetTab.RULES },
                     text = { Text("Mental Rules", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                 )
+                Tab(
+                    selected = currentTab == CheatSheetTab.ADVANCED_MATH,
+                    onClick = { currentTab = CheatSheetTab.ADVANCED_MATH },
+                    text = { Text("Advanced PYQ Math", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                )
             }
 
             // Search within table
@@ -111,6 +119,7 @@ fun CheatSheetScreen(
                 CheatSheetTab.SQUARES_CUBES -> SquaresCubesTableView(filterText = filterText)
                 CheatSheetTab.CI_RATES -> CiRatesTableView(filterText = filterText)
                 CheatSheetTab.RULES -> MentalRulesView()
+                CheatSheetTab.ADVANCED_MATH -> AdvancedMathView(filterText = filterText)
             }
         }
     }
@@ -388,6 +397,80 @@ private fun MentalRulesView() {
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun AdvancedMathView(filterText: String) {
+    val items = SscCglAdvancedMath.concepts.filter {
+        if (filterText.isBlank()) true
+        else {
+            val q = filterText.lowercase()
+            it.title.lowercase().contains(q) || it.formula.lowercase().contains(q) || it.trick.lowercase().contains(q)
+        }
+    }
+    
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 90.dp)
+    ) {
+        item {
+            Surface(
+                color = AccentAmber.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.School, contentDescription = null, tint = AccentOrange)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "SSC CGL Mains level formulas, theorems & shortcuts.",
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+        items(items) { concept ->
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryIndigo.copy(alpha = 0.3f)),
+                tonalElevation = 4.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = concept.title,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = PrimaryIndigo
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    
+                    Surface(color = PrimaryIndigo.copy(alpha = 0.05f), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = concept.formula,
+                            modifier = Modifier.padding(10.dp),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row {
+                        Text("🔥 Trick: ", fontWeight = FontWeight.Bold, color = AccentOrange, fontSize = 13.sp)
+                        Text(concept.trick, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row {
+                        Text("🎯 PYQ Context: ", fontWeight = FontWeight.Bold, color = AccentEmerald, fontSize = 13.sp)
+                        Text(concept.pyqContext, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
