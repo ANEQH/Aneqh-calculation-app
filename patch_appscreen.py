@@ -10,7 +10,9 @@ old_enum = """enum class AppScreen {
     SOLVERS,
     CHEAT_SHEETS,
     STATS,
-    ALGEBRA_GRAPH
+    ALGEBRA_GRAPH,
+    PYQ_TESTS,
+    CALCULATOR
 }"""
 
 new_enum = """enum class AppScreen {
@@ -24,7 +26,10 @@ new_enum = """enum class AppScreen {
     STATS,
     ALGEBRA_GRAPH,
     PYQ_TESTS,
-    CALCULATOR
+    CALCULATOR,
+    SYLLABUS,
+    TABLES,
+    TABLE_DRILL
 }"""
 
 with open("app/src/main/java/com/example/ui/viewmodel/CalculationViewModel.kt", "w") as f:

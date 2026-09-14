@@ -21,6 +21,9 @@ import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.GridOn
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.*
@@ -180,6 +183,9 @@ fun HomeScreen(
                         item { ChipCard(title = tr("ci_si_rates", lang), subtitle = "Fast %", color = AccentPurple, icon = Icons.Default.TrendingUp) { viewModel.navigateTo(AppScreen.CHEAT_SHEETS) } }
                         item { ChipCard(title = tr("visual_math", lang), subtitle = "3D Graphs", color = PrimaryIndigo, icon = Icons.Default.ViewInAr) { viewModel.navigateTo(AppScreen.ALGEBRA_GRAPH) } }
                         item { ChipCard(title = tr("concept_book", lang), subtitle = "1000x Theory", color = AccentEmerald, icon = Icons.Default.MenuBook) { viewModel.navigateTo(AppScreen.CHEAT_SHEETS) } }
+                        item { ChipCard(title = "SSC Syllabus", subtitle = "Tier 1 & 2", color = AccentRose, icon = Icons.Default.Checklist) { viewModel.navigateTo(AppScreen.SYLLABUS) } }
+                        item { ChipCard(title = "Tables 1-30", subtitle = "Pahade", color = AccentAmber, icon = Icons.Default.GridOn) { viewModel.navigateTo(AppScreen.TABLES) } }
+                        item { ChipCard(title = "Table Drill", subtitle = "Infinite MCQs", color = AccentCyan, icon = Icons.Default.FormatListNumbered) { viewModel.navigateTo(AppScreen.TABLE_DRILL) } }
                     }
                 }
             }

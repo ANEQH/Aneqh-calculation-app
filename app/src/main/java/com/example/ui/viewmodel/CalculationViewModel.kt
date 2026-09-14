@@ -26,7 +26,10 @@ enum class AppScreen {
     STATS,
     ALGEBRA_GRAPH,
     PYQ_TESTS,
-    CALCULATOR
+    CALCULATOR,
+    SYLLABUS,
+    TABLES,
+    TABLE_DRILL
 }
 
 data class QuizState(
@@ -393,6 +396,23 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
         _uiState.update {
             it.copy(quizState = quiz.copy(isQuizFinished = true, isActive = false))
         }
+    }
+
+    fun submitDrillAnswer(isCorrect: Boolean) {
+        val currentStats = _uiState.value.userStats
+        val newStreak = if (isCorrect) currentStats.currentStreak + 1 else 0
+        val newBestStreak = maxOf(newStreak, currentStats.bestStreak)
+        val newSolved = currentStats.totalSolved + 1
+        val newCorrect = if (isCorrect) currentStats.totalCorrect + 1 else currentStats.totalCorrect
+        
+        saveStats(
+            currentStats.copy(
+                totalSolved = newSolved,
+                totalCorrect = newCorrect,
+                currentStreak = newStreak,
+                bestStreak = newBestStreak
+            )
+        )
     }
 
     fun resetStats() {

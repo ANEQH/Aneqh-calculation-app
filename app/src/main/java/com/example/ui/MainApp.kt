@@ -146,6 +146,9 @@ fun MainApp(
                 AppScreen.ALGEBRA_GRAPH -> AlgebraGraphScreen(viewModel = viewModel)
                 AppScreen.PYQ_TESTS -> PyqTestsScreen(viewModel = viewModel)
                 AppScreen.CALCULATOR -> CalculatorScreen(viewModel = viewModel)
+                AppScreen.SYLLABUS -> SyllabusScreen(viewModel = viewModel)
+                AppScreen.TABLES -> TablesScreen(viewModel = viewModel)
+                AppScreen.TABLE_DRILL -> TableDrillScreen(viewModel = viewModel)
             }
         }
     }

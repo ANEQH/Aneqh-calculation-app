@@ -1,28 +1,28 @@
+import re
+
 with open("app/src/main/java/com/example/ui/viewmodel/CalculationViewModel.kt", "r") as f:
     content = f.read()
 
-old_enum = """enum class AppScreen {
-    SPLASH,
-    HOME,
-    CHAPTER_DETAIL,
-    PRACTICE_QUESTION,
-    SPEED_QUIZ,
-    SOLVERS,
-    CHEAT_SHEETS,
-    STATS
-}"""
+new_method = """    fun submitDrillAnswer(isCorrect: Boolean) {
+        val currentStats = _uiState.value.userStats
+        val newStreak = if (isCorrect) currentStats.currentStreak + 1 else 0
+        val newBestStreak = maxOf(newStreak, currentStats.bestStreak)
+        val newSolved = currentStats.totalSolved + 1
+        val newCorrect = if (isCorrect) currentStats.totalCorrect + 1 else currentStats.totalCorrect
+        
+        saveStats(
+            currentStats.copy(
+                totalSolved = newSolved,
+                totalCorrect = newCorrect,
+                currentStreak = newStreak,
+                bestStreak = newBestStreak
+            )
+        )
+    }
 
-new_enum = """enum class AppScreen {
-    SPLASH,
-    HOME,
-    CHAPTER_DETAIL,
-    PRACTICE_QUESTION,
-    SPEED_QUIZ,
-    SOLVERS,
-    CHEAT_SHEETS,
-    STATS,
-    ALGEBRA_GRAPH
-}"""
+    fun resetStats() {"""
+
+content = content.replace("    fun resetStats() {", new_method)
 
 with open("app/src/main/java/com/example/ui/viewmodel/CalculationViewModel.kt", "w") as f:
-    f.write(content.replace(old_enum, new_enum))
+    f.write(content)
