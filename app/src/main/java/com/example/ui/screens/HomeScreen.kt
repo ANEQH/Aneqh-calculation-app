@@ -105,7 +105,8 @@ fun HomeScreen(
                 showBackButton = false,
                 currentLanguage = uiState.appLanguage,
                 onLanguageToggle = { viewModel.toggleLanguage() },
-                onStatsClick = { viewModel.navigateTo(AppScreen.STATS) }
+                onStatsClick = { viewModel.navigateTo(AppScreen.STATS) },
+                onThemeToggle = { viewModel.toggleTheme() }
             )
         },
         modifier = modifier

@@ -63,7 +63,8 @@ data class UiState(
     val searchQuery: String = "",
     val quizState: QuizState = QuizState(),
     val userStats: UserStats = UserStats(),
-    val appLanguage: AppLanguage = AppLanguage.HINDI
+    val appLanguage: AppLanguage = AppLanguage.HINDI,
+    val isDarkMode: Boolean = true
 )
 
 class CalculationViewModel(application: Application) : AndroidViewModel(application) {
@@ -104,6 +105,10 @@ class CalculationViewModel(application: Application) : AndroidViewModel(applicat
                 appLanguage = language
             )
         }
+    }
+
+        fun toggleTheme() {
+        _uiState.update { it.copy(isDarkMode = !it.isDarkMode) }
     }
 
     fun toggleLanguage() {

@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.MainApp
 import com.example.ui.theme.MyApplicationTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.ui.viewmodel.CalculationViewModel
 
 class MainActivity : ComponentActivity() {
@@ -17,8 +19,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
-                val viewModel: CalculationViewModel = viewModel()
+            val viewModel: CalculationViewModel = viewModel()
+            val uiState by viewModel.uiState.collectAsState()
+            
+            MyApplicationTheme(darkTheme = uiState.isDarkMode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainApp(viewModel = viewModel)
                 }

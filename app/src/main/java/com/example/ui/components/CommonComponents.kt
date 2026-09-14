@@ -37,7 +37,8 @@ fun AppTopBar(
     currentLanguage: com.example.ui.viewmodel.AppLanguage = com.example.ui.viewmodel.AppLanguage.HINDI,
     onLanguageToggle: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    onStatsClick: () -> Unit = {}
+    onStatsClick: () -> Unit = {},
+    onThemeToggle: (() -> Unit)? = null
 ) {
     TopAppBar(
         title = {
