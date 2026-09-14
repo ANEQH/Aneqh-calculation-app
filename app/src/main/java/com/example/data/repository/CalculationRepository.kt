@@ -1035,22 +1035,25 @@ object CalculationRepository {
         }
 
         // Also add dynamically generated questions for variety
-        pool.addAll(generateDynamicQuestions(count * 5 + 500))
+        pool.addAll(generateDynamicQuestions(count * 5 + 500, chapterFilter))
 
         return pool.shuffled().take(count)
     }
 
-    private fun generateDynamicQuestions(count: Int): List<QuizQuestion> {
+    private fun generateDynamicQuestions(count: Int, chapterFilter: Int? = null): List<QuizQuestion> {
         val list = mutableListOf<QuizQuestion>()
         repeat(count) {
-            when (Random.nextInt(12)) {
-                0 -> {
-                    // 2-digit addition
-                    val a = Random.nextInt(20, 99)
-                    val b = Random.nextInt(10, 99)
+            val difficulty = Random.nextInt(3) // 0 = Easy, 1 = Hard, 2 = Very Hard
+            val typeId = chapterFilter ?: Random.nextInt(1, 15) // If chapterFilter is present, use it. Else random.
+            
+            when (typeId) {
+                1 -> {
+                    // Addition
+                    val a = if (difficulty == 0) Random.nextInt(20, 99) else if (difficulty == 1) Random.nextInt(100, 999) else Random.nextInt(1000, 9999)
+                    val b = if (difficulty == 0) Random.nextInt(10, 99) else if (difficulty == 1) Random.nextInt(100, 999) else Random.nextInt(1000, 9999)
                     val ans = a + b
-                    val wrong1 = ans + 10
-                    val wrong2 = ans - 2
+                    val wrong1 = ans + (if (difficulty == 0) 10 else 100)
+                    val wrong2 = ans - (if (difficulty == 0) 2 else 12)
                     val wrong3 = ans + 2
                     val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
                     val correctIdx = options.indexOf(ans.toString())
@@ -1069,10 +1072,11 @@ object CalculationRepository {
                         )
                     )
                 }
-                1 -> {
-                    // 1000 - x subtraction
-                    val x = Random.nextInt(111, 989)
-                    val ans = 1000 - x
+                2 -> {
+                    // Subtraction
+                    val base = if (difficulty == 0) 100 else if (difficulty == 1) 1000 else 10000
+                    val x = if (difficulty == 0) Random.nextInt(11, 89) else if (difficulty == 1) Random.nextInt(111, 989) else Random.nextInt(1111, 9889)
+                    val ans = base - x
                     val wrong1 = ans + 10
                     val wrong2 = ans - 10
                     val wrong3 = ans + 2
@@ -1083,7 +1087,7 @@ object CalculationRepository {
                         QuizQuestion(
                             chapterId = 2,
                             chapterTitle = "घटाव (Subtraction)",
-                            questionText = "1000 - $x =",
+                            questionText = "$base - $x =",
                             optionA = options[0],
                             optionB = options[1],
                             optionC = options[2],
@@ -1093,9 +1097,9 @@ object CalculationRepository {
                         )
                     )
                 }
-                2 -> {
-                    // 2-digit Square
-                    val num = Random.nextInt(15, 60)
+                3 -> {
+                    // 2-digit Square / Multiplication
+                    val num = if (difficulty == 0) Random.nextInt(15, 30) else if (difficulty == 1) Random.nextInt(31, 60) else Random.nextInt(61, 120)
                     val ans = num * num
                     val wrong1 = ans + 20
                     val wrong2 = ans - 10
@@ -1117,10 +1121,10 @@ object CalculationRepository {
                         )
                     )
                 }
-                3 -> {
-                    // Net % increase
-                    val r1 = listOf(10, 20, 30, 25, 15).random()
-                    val r2 = listOf(10, 20, 30, 5, 15).random()
+                9 -> {
+                    // Percentage (Net Increase)
+                    val r1 = if (difficulty == 0) listOf(10, 20).random() else if (difficulty == 1) listOf(15, 25, 30).random() else listOf(12, 18, 22).random()
+                    val r2 = if (difficulty == 0) listOf(10, 20).random() else if (difficulty == 1) listOf(5, 15).random() else listOf(8, 12, 18).random()
                     val ansVal = r1 + r2 + (r1 * r2) / 100.0
                     val ansStr = "%.2f%%".format(ansVal)
                     val w1 = "%.2f%%".format(ansVal + 2)
@@ -1143,9 +1147,9 @@ object CalculationRepository {
                         )
                     )
                 }
-                4 -> {
+                12 -> {
                     // Time and Work
-                    val aFrac = listOf(2 to 5, 3 to 4, 1 to 3, 4 to 5, 5 to 6).random()
+                    val aFrac = if (difficulty == 0) listOf(1 to 2, 1 to 3).random() else if (difficulty == 1) listOf(2 to 3, 3 to 4).random() else listOf(2 to 5, 3 to 7).random()
                     val days = aFrac.first * Random.nextInt(4, 10)
                     val totalDays = days * aFrac.second / aFrac.first
                     val w1 = totalDays + 5
@@ -1168,9 +1172,9 @@ object CalculationRepository {
                         )
                     )
                 }
-                5 -> {
+                11 -> {
                     // CI 2 years
-                    val r = listOf(2, 3, 4, 5, 6, 7, 8, 9, 10, 12).random()
+                    val r = if (difficulty == 0) listOf(5, 10).random() else if (difficulty == 1) listOf(4, 6, 8).random() else listOf(3, 7, 9, 12).random()
                     val ciRate = 2 * r + (r * r) / 100.0
                     val ansStr = "%.2f%%".format(ciRate)
                     val w1 = "%.2f%%".format(ciRate + 1)
@@ -1193,58 +1197,111 @@ object CalculationRepository {
                         )
                     )
                 }
-                6 -> {
-                    // Vedic Multiply by 11
-                    val num = Random.nextInt(21, 89)
-                    val ans = num * 11
-                    val wrong1 = ans + 11
-                    val wrong2 = ans - 11
-                    val wrong3 = ans + 100
-                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
-                    val correctIdx = options.indexOf(ans.toString())
-                    val letter = listOf("a", "b", "c", "d")[correctIdx]
-                    list.add(
-                        QuizQuestion(
-                            chapterId = 13,
-                            chapterTitle = "Vedic Speed Tricks",
-                            questionText = "$num × 11 =",
-                            optionA = options[0],
-                            optionB = options[1],
-                            optionC = options[2],
-                            optionD = options[3],
-                            correctOption = letter,
-                            explanation = "Split ${num/10} and ${num%10}, insert sum: ${num/10 + num%10}. Ans: $ans"
+                13 -> {
+                    // Vedic Multiply by 11 or Base 100
+                    if (Random.nextBoolean()) {
+                        val num = if (difficulty == 0) Random.nextInt(21, 45) else if (difficulty == 1) Random.nextInt(46, 89) else Random.nextInt(111, 499)
+                        val ans = num * 11
+                        val wrong1 = ans + 11
+                        val wrong2 = ans - 11
+                        val wrong3 = ans + 100
+                        val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                        val correctIdx = options.indexOf(ans.toString())
+                        val letter = listOf("a", "b", "c", "d")[correctIdx]
+                        list.add(
+                            QuizQuestion(
+                                chapterId = 13,
+                                chapterTitle = "Vedic Speed Tricks",
+                                questionText = "$num × 11 =",
+                                optionA = options[0],
+                                optionB = options[1],
+                                optionC = options[2],
+                                optionD = options[3],
+                                correctOption = letter,
+                                explanation = "Split ${num/10} and ${num%10}, insert sum: ${num/10 + num%10}. Ans: $ans"
+                            )
                         )
-                    )
-                }
-                7 -> {
-                    // Base 50 Square
-                    val num = Random.nextInt(41, 59)
-                    val ans = num * num
-                    val wrong1 = ans + 100
-                    val wrong2 = ans - 100
-                    val wrong3 = ans + 10
-                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
-                    val correctIdx = options.indexOf(ans.toString())
-                    val letter = listOf("a", "b", "c", "d")[correctIdx]
-                    list.add(
-                        QuizQuestion(
-                            chapterId = 14,
-                            chapterTitle = "SSC CGL Essentials",
-                            questionText = "$num² =",
-                            optionA = options[0],
-                            optionB = options[1],
-                            optionC = options[2],
-                            optionD = options[3],
-                            correctOption = letter,
-                            explanation = "25 + (${num - 50}) | (${num - 50})² = $ans"
+                    } else {
+                        val a = if (difficulty == 0) Random.nextInt(101, 105) else if (difficulty == 1) Random.nextInt(106, 112) else Random.nextInt(91, 99)
+                        val b = if (difficulty == 0) Random.nextInt(101, 105) else if (difficulty == 1) Random.nextInt(106, 112) else Random.nextInt(91, 99)
+                        val ans = a * b
+                        val wrong1 = ans + 100
+                        val wrong2 = ans - 100
+                        val wrong3 = ans + 10
+                        val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                        val correctIdx = options.indexOf(ans.toString())
+                        val letter = listOf("a", "b", "c", "d")[correctIdx]
+                        list.add(
+                            QuizQuestion(
+                                chapterId = 13,
+                                chapterTitle = "Vedic Speed Tricks",
+                                questionText = "$a × $b =",
+                                optionA = options[0],
+                                optionB = options[1],
+                                optionC = options[2],
+                                optionD = options[3],
+                                correctOption = letter,
+                                explanation = "(100 + ${a-100} + ${b-100}) | (${a-100} × ${b-100}) = $ans"
+                            )
                         )
-                    )
+                    }
                 }
-                8 -> {
-                    // Tables 12-25
-                    val a = Random.nextInt(12, 26)
-                    val b = Random.nextInt(5, 10)
+                14 -> {
+                    // SSC CGL Essentials (Base 50 Square or Digital Sum)
+                    if (Random.nextBoolean()) {
+                        val num = if (difficulty == 0) Random.nextInt(48, 52) else if (difficulty == 1) Random.nextInt(41, 59) else Random.nextInt(35, 65)
+                        val ans = num * num
+                        val wrong1 = ans + 100
+                        val wrong2 = ans - 100
+                        val wrong3 = ans + 10
+                        val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                        val correctIdx = options.indexOf(ans.toString())
+                        val letter = listOf("a", "b", "c", "d")[correctIdx]
+                        list.add(
+                            QuizQuestion(
+                                chapterId = 14,
+                                chapterTitle = "SSC CGL Essentials",
+                                questionText = "$num² =",
+                                optionA = options[0],
+                                optionB = options[1],
+                                optionC = options[2],
+                                optionD = options[3],
+                                correctOption = letter,
+                                explanation = "25 + (${num - 50}) | (${num - 50})² = $ans"
+                            )
+                        )
+                    } else {
+                        val a = if (difficulty == 0) Random.nextInt(11, 45) else if (difficulty == 1) Random.nextInt(111, 456) else Random.nextInt(1111, 4567)
+                        val b = if (difficulty == 0) Random.nextInt(11, 45) else if (difficulty == 1) Random.nextInt(111, 456) else Random.nextInt(1111, 4567)
+                        val dsA = a.toString().map { it.digitToInt() }.sum() % 9
+                        val dsB = b.toString().map { it.digitToInt() }.sum() % 9
+                        val dsAns = (dsA * dsB) % 9
+                        val correctDS = if (dsAns == 0) 9 else dsAns
+                        val wrong1 = (correctDS % 9) + 1
+                        val wrong2 = (wrong1 % 9) + 1
+                        val wrong3 = (wrong2 % 9) + 1
+                        val options = listOf(correctDS.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
+                        val correctIdx = options.indexOf(correctDS.toString())
+                        val letter = listOf("a", "b", "c", "d")[correctIdx]
+                        list.add(
+                            QuizQuestion(
+                                chapterId = 14,
+                                chapterTitle = "SSC CGL Essentials",
+                                questionText = "Digital Sum of ($a × $b) is?",
+                                optionA = options[0],
+                                optionB = options[1],
+                                optionC = options[2],
+                                optionD = options[3],
+                                correctOption = letter,
+                                explanation = "DS($a) × DS($b) = $dsA × $dsB = $dsAns => $correctDS"
+                            )
+                        )
+                    }
+                }
+                else -> {
+                    // Default / fallback question for other chapters
+                    val a = Random.nextInt(2, 20)
+                    val b = Random.nextInt(2, 20)
                     val ans = a * b
                     val wrong1 = ans + a
                     val wrong2 = ans - a
@@ -1254,8 +1311,8 @@ object CalculationRepository {
                     val letter = listOf("a", "b", "c", "d")[correctIdx]
                     list.add(
                         QuizQuestion(
-                            chapterId = 14,
-                            chapterTitle = "SSC CGL Essentials",
+                            chapterId = typeId,
+                            chapterTitle = "Chapter $typeId",
                             questionText = "$a × $b =",
                             optionA = options[0],
                             optionB = options[1],
@@ -1263,85 +1320,6 @@ object CalculationRepository {
                             optionD = options[3],
                             correctOption = letter,
                             explanation = "Table memory: $a × $b = $ans"
-                        )
-                    )
-                }
-                9 -> {
-                    // Digital Sum Concept
-                    val a = Random.nextInt(11, 45)
-                    val b = Random.nextInt(11, 45)
-                    val trueAns = a * b
-                    val dsA = a.toString().map { it.digitToInt() }.sum() % 9
-                    val dsB = b.toString().map { it.digitToInt() }.sum() % 9
-                    val dsAns = (dsA * dsB) % 9
-                    val correctDS = if (dsAns == 0) 9 else dsAns
-                    val wrong1 = (correctDS % 9) + 1
-                    val wrong2 = (wrong1 % 9) + 1
-                    val wrong3 = (wrong2 % 9) + 1
-                    val options = listOf(correctDS.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
-                    val correctIdx = options.indexOf(correctDS.toString())
-                    val letter = listOf("a", "b", "c", "d")[correctIdx]
-                    list.add(
-                        QuizQuestion(
-                            chapterId = 14,
-                            chapterTitle = "SSC CGL Essentials",
-                            questionText = "Digital Sum of ($a × $b) is?",
-                            optionA = options[0],
-                            optionB = options[1],
-                            optionC = options[2],
-                            optionD = options[3],
-                            correctOption = letter,
-                            explanation = "DS($a) × DS($b) = $dsA × $dsB = $dsAns => $correctDS"
-                        )
-                    )
-                }
-                10 -> {
-                    // Squares ending in 5
-                    val tens = Random.nextInt(2, 12)
-                    val num = tens * 10 + 5
-                    val ans = num * num
-                    val wrong1 = (tens * (tens+2) * 100) + 25
-                    val wrong2 = (tens * tens * 100) + 25
-                    val wrong3 = ans + 1000
-                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
-                    val correctIdx = options.indexOf(ans.toString())
-                    val letter = listOf("a", "b", "c", "d")[correctIdx]
-                    list.add(
-                        QuizQuestion(
-                            chapterId = 13,
-                            chapterTitle = "Vedic Speed Tricks",
-                            questionText = "$num² =",
-                            optionA = options[0],
-                            optionB = options[1],
-                            optionC = options[2],
-                            optionD = options[3],
-                            correctOption = letter,
-                            explanation = "($tens × ${tens+1}) | 25 = $ans"
-                        )
-                    )
-                }
-                else -> {
-                    // Base 100 Multiplication
-                    val a = Random.nextInt(101, 109)
-                    val b = Random.nextInt(101, 109)
-                    val ans = a * b
-                    val wrong1 = ans + 100
-                    val wrong2 = ans - 100
-                    val wrong3 = ans + 10
-                    val options = listOf(ans.toString(), wrong1.toString(), wrong2.toString(), wrong3.toString()).shuffled()
-                    val correctIdx = options.indexOf(ans.toString())
-                    val letter = listOf("a", "b", "c", "d")[correctIdx]
-                    list.add(
-                        QuizQuestion(
-                            chapterId = 13,
-                            chapterTitle = "Vedic Speed Tricks",
-                            questionText = "$a × $b =",
-                            optionA = options[0],
-                            optionB = options[1],
-                            optionC = options[2],
-                            optionD = options[3],
-                            correctOption = letter,
-                            explanation = "(100 + ${a-100} + ${b-100}) | (${a-100} × ${b-100}) = $ans"
                         )
                     )
                 }

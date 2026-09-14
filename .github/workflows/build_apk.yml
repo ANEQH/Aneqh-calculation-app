@@ -1,4 +1,4 @@
-name: Build & Release Aneqh APK
+name: Build & Release Anek APK
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Aneqh APK
+    name: Build Anek APK
     runs-on: ubuntu-latest
 
     steps:
@@ -51,14 +51,14 @@ jobs:
       - name: Locate & Prepare Output APK
         run: |
           mkdir -p release_apk
-          find app/build/outputs/apk/ -name "*.apk" -exec cp {} release_apk/Aneqh-debug.apk \;
+          find app/build/outputs/apk/ -name "*.apk" -exec cp {} release_apk/Anek-debug.apk \;
           ls -la release_apk/
 
       - name: Upload APK to Artifacts (Direct Download)
         uses: actions/upload-artifact@v4
         with:
-          name: Aneqh-Android-APK
-          path: release_apk/Aneqh-debug.apk
+          name: Anek-Android-APK
+          path: release_apk/Anek-debug.apk
           retention-days: 30
 
       - name: Publish to GitHub Releases
@@ -67,12 +67,12 @@ jobs:
         continue-on-error: true
         with:
           tag_name: release-v1.0.${{ github.run_number }}
-          name: Aneqh Official APK v1.0.${{ github.run_number }}
+          name: Anek Official APK v1.0.${{ github.run_number }}
           body: |
-            ## 📱 ANEQH Official App APK
-            - **App Name**: Aneqh
+            ## 📱 ANEK Official App APK
+            - **App Name**: Anek Calculation
             - **Contents**: Inspector Chalisa 12 Chapters, Speed Quiz Drills, 10x Solvers, Formula Cheat Sheets.
-            - **Download**: Click `Aneqh-debug.apk` below to download and install on your phone.
-          files: release_apk/Aneqh-debug.apk
+            - **Download**: Click `Anek-debug.apk` below to download and install on your phone.
+          files: release_apk/Anek-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
