@@ -208,6 +208,62 @@ object CalculationSolvers {
         )
     }
 
+    // Speed & Distance (Average Speed / Relative Speed)
+    fun solveSpeedDistance(s1: Double, s2: Double, isAvgSpeed: Boolean): SolverResult {
+        if (isAvgSpeed) {
+            val avgSpeed = (2 * s1 * s2) / (s1 + s2)
+            val steps = listOf(
+                "SSC CGL Concept: समान दूरी (Equal Distance) के लिए औसत चाल",
+                "सूत्र: Average Speed = 2xy / (x + y)",
+                "Step 1: x = $s1 km/h, y = $s2 km/h",
+                "Step 2: 2 × $s1 × $s2 = %.2f".format(2 * s1 * s2),
+                "Step 3: x + y = $s1 + $s2 = %.2f".format(s1 + s2),
+                "Step 4: Average Speed = %.2f / %.2f = %.2f km/h".format(2 * s1 * s2, s1 + s2, avgSpeed),
+                "m/s रूपांतरण: %.2f × (5/18) = %.2f m/s".format(avgSpeed, avgSpeed * 5.0 / 18.0)
+            )
+            return SolverResult(
+                finalAnswer = "%.2f km/h (%.2f m/s)".format(avgSpeed, avgSpeed * 5.0 / 18.0),
+                methodTitle = "Average Speed Formula",
+                steps = steps,
+                mentalNote = "दूरी समान होने पर सीधे 2xy/(x+y) लगाएं।"
+            )
+        } else {
+            val sameDir = kotlin.math.abs(s1 - s2)
+            val oppDir = s1 + s2
+            val steps = listOf(
+                "SSC CGL Concept: आपेक्षिक चाल (Relative Speed)",
+                "1. विपरीत दिशा (Opposite Direction) = S1 + S2 = $s1 + $s2 = %.2f km/h (%.2f m/s)".format(oppDir, oppDir * 5.0 / 18.0),
+                "2. समान दिशा (Same Direction) = |S1 - S2| = |$s1 - $s2| = %.2f km/h (%.2f m/s)".format(sameDir, sameDir * 5.0 / 18.0),
+                "ट्रेन का नियम: एक दूसरे को पार करने में तय दूरी = दोनों ट्रेनों की लंबाई का योग (L1 + L2)"
+            )
+            return SolverResult(
+                finalAnswer = "Opposite: %.1f km/h | Same: %.1f km/h".format(oppDir, sameDir),
+                methodTitle = "Relative Speed (ट्रेन / चोर-पुलिस)",
+                steps = steps,
+                mentalNote = "विपरीत दिशा में चालें जुड़ती हैं, समान दिशा में घटती हैं।"
+            )
+        }
+    }
+
+    // Boat and Stream (नाव और धारा)
+    fun solveBoatStream(d: Double, u: Double): SolverResult {
+        val boatSpeed = (d + u) / 2.0
+        val streamSpeed = (d - u) / 2.0
+        val steps = listOf(
+            "SSC CGL Concept: नाव और धारा (Boat & Stream)",
+            "Step 1: अनुप्रवाह चाल (Downstream D) = $d km/h",
+            "Step 2: ऊर्ध्वप्रवाह चाल (Upstream U) = $u km/h",
+            "Step 3: शांत जल में नाव की चाल = (D + U) / 2 = ($d + $u) / 2 = %.2f km/h".format(boatSpeed),
+            "Step 4: धारा की चाल (Stream Speed) = (D - U) / 2 = ($d - $u) / 2 = %.2f km/h".format(streamSpeed)
+        )
+        return SolverResult(
+            finalAnswer = "Boat: %.2f km/h | Current: %.2f km/h".format(boatSpeed, streamSpeed),
+            methodTitle = "Boat & Stream Shortcut",
+            steps = steps,
+            mentalNote = "शांत जल में नाव = (D+U)/2, धारा = (D-U)/2."
+        )
+    }
+
     // 7. LCM & HCF Solver
     fun solveLcmHcf(a: Long, b: Long): SolverResult {
         val hcf = calculateHcf(a, b)

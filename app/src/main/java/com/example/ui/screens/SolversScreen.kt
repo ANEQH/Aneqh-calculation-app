@@ -31,6 +31,7 @@ import com.example.ui.viewmodel.AppScreen
 import com.example.ui.viewmodel.CalculationViewModel
 
 enum class SolverType(val title: String, val icon: String) {
+    PERCENTAGE_HUB("🎯 Percentage Hub (12 Modes)", "percent"),
     PYQ_SUGAR_PRICE("PYQ: Price & Cons.", "trending_down"),
     PYQ_ELECTION("PYQ: Election", "how_to_vote"),
     PYQ_PASS_FAIL("PYQ: Pass/Fail", "school"),
@@ -39,6 +40,8 @@ enum class SolverType(val title: String, val icon: String) {
     NET_PERCENTAGE("Net % Change", "percent"),
     CI_SI_RATES("CI & SI Net Rate", "account_balance"),
     TIME_WORK("Time & Work", "engineering"),
+    SPEED_DISTANCE("Speed & Distance", "directions_car"),
+    BOAT_STREAM("Boat & Stream", "sailing"),
     LCM_HCF("LCM & HCF", "hub"),
     VEDIC_SUBTRACTION("Base 1000 Sub", "remove")
 }
@@ -99,6 +102,7 @@ fun SolversScreen(
             // Active Solver Card
             item {
                 when (selectedSolver) {
+                    SolverType.PERCENTAGE_HUB -> PercentageHubView()
                     SolverType.PYQ_SUGAR_PRICE -> PyqSugarPriceSolverView()
                     SolverType.PYQ_ELECTION -> PyqElectionSolverView()
                     SolverType.PYQ_PASS_FAIL -> PyqPassFailSolverView()
@@ -107,6 +111,8 @@ fun SolversScreen(
                     SolverType.NET_PERCENTAGE -> NetPercentageSolverView()
                     SolverType.CI_SI_RATES -> CiSiSolverView()
                     SolverType.TIME_WORK -> TimeWorkSolverView()
+                    SolverType.SPEED_DISTANCE -> SpeedDistanceSolverView()
+                    SolverType.BOAT_STREAM -> BoatStreamSolverView()
                     SolverType.LCM_HCF -> LcmHcfSolverView()
                     SolverType.VEDIC_SUBTRACTION -> VedicSubSolverView()
                 }
@@ -384,6 +390,120 @@ private fun TimeWorkSolverView() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.weight(1.2f)
+            )
+        }
+
+        if (result != null) {
+            SolverResultDisplay(result = result!!)
+        }
+    }
+}
+
+@Composable
+private fun SpeedDistanceSolverView() {
+    var speed1Text by remember { mutableStateOf("60") }
+    var speed2Text by remember { mutableStateOf("40") }
+    var isAverageSpeedMode by remember { mutableStateOf(true) }
+    var result by remember { mutableStateOf<CalculationSolvers.SolverResult?>(null) }
+
+    LaunchedEffect(speed1Text, speed2Text, isAverageSpeedMode) {
+        val s1 = speed1Text.toDoubleOrNull()
+        val s2 = speed2Text.toDoubleOrNull()
+        if (s1 != null && s2 != null && s1 > 0 && s2 > 0) {
+            result = CalculationSolvers.solveSpeedDistance(s1, s2, isAverageSpeedMode)
+        } else {
+            result = null
+        }
+    }
+
+    SolverCardWrapper(
+        title = "Speed, Time & Distance / Relative Speed Solver",
+        description = "Calculate Average Speed (2xy/(x+y)) or Relative Speed for SSC CGL."
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            OutlinedTextField(
+                value = speed1Text,
+                onValueChange = { speed1Text = it },
+                label = { Text("Speed 1 (km/h)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = speed2Text,
+                onValueChange = { speed2Text = it },
+                label = { Text("Speed 2 (km/h)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterChip(
+                selected = isAverageSpeedMode,
+                onClick = { isAverageSpeedMode = true },
+                label = { Text("Average Speed (Equal Dist)", fontSize = 12.sp) }
+            )
+            FilterChip(
+                selected = !isAverageSpeedMode,
+                onClick = { isAverageSpeedMode = false },
+                label = { Text("Relative Speed (Opposite/Same)", fontSize = 12.sp) }
+            )
+        }
+
+        if (result != null) {
+            SolverResultDisplay(result = result!!)
+        }
+    }
+}
+
+@Composable
+private fun BoatStreamSolverView() {
+    var downstreamText by remember { mutableStateOf("18") }
+    var upstreamText by remember { mutableStateOf("12") }
+    var result by remember { mutableStateOf<CalculationSolvers.SolverResult?>(null) }
+
+    LaunchedEffect(downstreamText, upstreamText) {
+        val d = downstreamText.toDoubleOrNull()
+        val u = upstreamText.toDoubleOrNull()
+        if (d != null && u != null && d > 0 && u > 0 && d >= u) {
+            result = CalculationSolvers.solveBoatStream(d, u)
+        } else {
+            result = null
+        }
+    }
+
+    SolverCardWrapper(
+        title = "Boat & Stream Solver (नाव और धारा)",
+        description = "Calculate Speed of Boat in Still Water & Speed of Current from D & U."
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            OutlinedTextField(
+                value = downstreamText,
+                onValueChange = { downstreamText = it },
+                label = { Text("Downstream D (km/h)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = upstreamText,
+                onValueChange = { upstreamText = it },
+                label = { Text("Upstream U (km/h)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
             )
         }
 

@@ -284,36 +284,169 @@ fun HomeScreen(
                 }
             }
 
-            // Section: Stats & Daily Target
+            // Section: Today's Progress Dashboard
             item {
                 val stats = uiState.userStats
                 val accuracy = if (stats.totalSolved > 0) ((stats.totalCorrect.toDouble() / stats.totalSolved) * 100).toInt() else 0
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard(label = tr("solved", lang), value = "${stats.totalSolved}", color = PrimaryIndigo, icon = Icons.Default.CheckCircle, modifier = Modifier.weight(1f))
-                    StatCard(label = tr("streak", lang), value = "${stats.currentStreak} 🔥", color = AccentAmber, icon = Icons.Default.LocalFireDepartment, modifier = Modifier.weight(1f))
-                    StatCard(label = tr("accuracy", lang), value = "$accuracy%", color = AccentEmerald, icon = Icons.Default.GpsFixed, modifier = Modifier.weight(1f))
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = if (lang == AppLanguage.HINDI) "आज की प्रगति (Today's Progress)" else "Today's Progress",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatCard(label = if (lang == AppLanguage.HINDI) "प्रश्न (Questions)" else "Questions", value = "${stats.totalSolved}", color = PrimaryIndigo, icon = Icons.Default.CheckCircle, modifier = Modifier.weight(1f))
+                        StatCard(label = if (lang == AppLanguage.HINDI) "सटीकता (Accuracy)" else "Accuracy", value = "$accuracy%", color = AccentEmerald, icon = Icons.Default.GpsFixed, modifier = Modifier.weight(1f))
+                        StatCard(label = if (lang == AppLanguage.HINDI) "स्ट्रीक (Streak)" else "Streak", value = "${stats.currentStreak} 🔥", color = AccentAmber, icon = Icons.Default.LocalFireDepartment, modifier = Modifier.weight(1f))
+                        StatCard(label = if (lang == AppLanguage.HINDI) "फोकस (Focus)" else "Focus", value = "${stats.todayFocusMinutes}m", color = AccentRose, icon = Icons.Default.Timer, modifier = Modifier.weight(1f))
+                    }
                 }
             }
 
-            // Section: Live Events & Core Engine
+            // Section: Continue Practice / Smart Resume
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                    MegaActionCard(
-                        title = tr("start_speed_drill", lang),
-                        subtitle = tr("speed_drill_desc", lang),
-                        icon = Icons.Default.FlashOn,
-                        color = AccentAmber,
-                        onClick = { viewModel.startSpeedQuiz(questionCount = 10, timePerQuestion = 20) },
-                        modifier = Modifier.weight(1.5f)
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = PrimaryIndigo.copy(alpha = 0.08f),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, PrimaryIndigo.copy(alpha = 0.35f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { viewModel.navigateTo(AppScreen.PYQ_TESTS) }
+                        .testTag("continue_practice_banner")
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Surface(
+                                shape = CircleShape,
+                                color = PrimaryIndigo,
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = if (lang == AppLanguage.HINDI) "अभ्यास जारी रखें (Continue Practice)" else "Continue Practice",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = if (lang == AppLanguage.HINDI) "SSC CGL 2024 Tier-1 PYQ मॉक टेस्ट • 25 प्रश्न" else "SSC CGL 2024 Tier-1 PYQ Mock • 25 Questions",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = PrimaryIndigo)
+                    }
+                }
+            }
+
+            // Section: 4 Main Core Action Cards (CALCULATOR, PRACTICE, PYQ, SPEED DRILL)
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = if (lang == AppLanguage.HINDI) "मुख्य अभ्यास वर्ग (Core Quant Modules)" else "Core Quant Modules",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                    MegaActionCard(
-                        title = tr("live_test", lang),
-                        subtitle = "SSC CGL 2024",
-                        icon = Icons.Default.Sensors,
-                        color = AccentRose,
-                        onClick = { viewModel.navigateTo(AppScreen.PYQ_TESTS) },
-                        modifier = Modifier.weight(1f)
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        MegaActionCard(
+                            title = if (lang == AppLanguage.HINDI) "कैलकुलेटर" else "CALCULATOR",
+                            subtitle = if (lang == AppLanguage.HINDI) "स्मार्ट BODMAS & %" else "Smart BODMAS & %",
+                            icon = Icons.Default.Calculate,
+                            color = PrimaryIndigo,
+                            onClick = { viewModel.navigateTo(AppScreen.CALCULATOR) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        MegaActionCard(
+                            title = if (lang == AppLanguage.HINDI) "प्रैक्टिस" else "PRACTICE",
+                            subtitle = if (lang == AppLanguage.HINDI) "चैप्टरवाइज़ अभ्यास" else "Topic & Mixed Drill",
+                            icon = Icons.Default.MenuBook,
+                            color = AccentEmerald,
+                            onClick = { viewModel.navigateTo(AppScreen.CHAPTER_DETAIL) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                        MegaActionCard(
+                            title = if (lang == AppLanguage.HINDI) "PYQ" else "PYQ MOCKS",
+                            subtitle = if (lang == AppLanguage.HINDI) "CGL 2018-2024 प्रश्न" else "Tier 1 & 2 Shift Qs",
+                            icon = Icons.Default.Quiz,
+                            color = AccentRose,
+                            onClick = { viewModel.navigateTo(AppScreen.PYQ_TESTS) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        MegaActionCard(
+                            title = if (lang == AppLanguage.HINDI) "स्पीड ड्रिल" else "SPEED DRILL",
+                            subtitle = if (lang == AppLanguage.HINDI) "10 Qs • टाइमर टेस्ट" else "Timed Velocity Quiz",
+                            icon = Icons.Default.FlashOn,
+                            color = AccentAmber,
+                            onClick = { viewModel.startSpeedQuiz(questionCount = 10, timePerQuestion = 20) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            // Section: Secondary Modules (MATH GYM, FORMULAS, STATISTICS, SOLVERS)
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = if (lang == AppLanguage.HINDI) "स्पीड बूस्टर व सूत्र (Speed & Formula Book)" else "Speed Boosters & Formulas",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                        color = MaterialTheme.colorScheme.onBackground
                     )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        item {
+                            ChipCard(
+                                title = if (lang == AppLanguage.HINDI) "मैथ जिम" else "MATH GYM",
+                                subtitle = if (lang == AppLanguage.HINDI) "पहाड़े, वर्ग, घन" else "Pahade & Squares",
+                                color = AccentRose,
+                                icon = Icons.Default.FitnessCenter
+                            ) { viewModel.navigateTo(AppScreen.MATH_GYM) }
+                        }
+                        item {
+                            ChipCard(
+                                title = if (lang == AppLanguage.HINDI) "फॉर्मूला बुक" else "FORMULAS",
+                                subtitle = if (lang == AppLanguage.HINDI) "शॉर्टकट व सूत्र" else "Cheatsheet Book",
+                                color = PrimaryIndigo,
+                                icon = Icons.Default.AutoStories
+                            ) { viewModel.navigateTo(AppScreen.CHEAT_SHEETS) }
+                        }
+                        item {
+                            ChipCard(
+                                title = if (lang == AppLanguage.HINDI) "स्टैटिस्टिक्स" else "STATISTICS",
+                                subtitle = if (lang == AppLanguage.HINDI) "कमज़ोर विषय व गति" else "Accuracy & Speed",
+                                color = AccentEmerald,
+                                icon = Icons.Default.BarChart
+                            ) { viewModel.navigateTo(AppScreen.STATS) }
+                        }
+                        item {
+                            ChipCard(
+                                title = if (lang == AppLanguage.HINDI) "सॉल्वर्स" else "10x SOLVERS",
+                                subtitle = if (lang == AppLanguage.HINDI) "स्टेप-बाय-स्टेप हल" else "Instant Formulas",
+                                color = AccentOrange,
+                                icon = Icons.Default.AutoAwesome
+                            ) { viewModel.navigateTo(AppScreen.SOLVERS) }
+                        }
+                        item {
+                            ChipCard(
+                                title = "Focus Clock",
+                                subtitle = "Pomodoro Zen",
+                                color = AccentCyan,
+                                icon = Icons.Default.Timer
+                            ) { viewModel.navigateTo(AppScreen.FOCUS_CLOCK) }
+                        }
+                    }
                 }
             }
 

@@ -45,13 +45,14 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
     var historyText by remember { mutableStateOf("") }
     var isResultShown by remember { mutableStateOf(false) }
     var activeSmartAnalysis by remember { mutableStateOf<SmartMathAnalysis?>(null) }
+    var showPercentDialog by remember { mutableStateOf(false) }
 
     val buttons = listOf(
         "AC", "(", ")", "÷",
         "7", "8", "9", "×",
         "4", "5", "6", "-",
         "1", "2", "3", "+",
-        "%", "0", ".", "="
+        "+/-", "0", ".", "="
     )
 
     fun onSpecialFunc(func: String) {
@@ -89,6 +90,9 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
                     activeSmartAnalysis = SmartMathAssistant.analyze("1/${num.toLong()}")
                 }
             }
+            "%" -> {
+                showPercentDialog = true
+            }
             "DR" -> {
                 val v = num.toLong()
                 val dr = SmartMathAssistant.digitalRoot(v)
@@ -119,6 +123,11 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
                 historyText = ""
                 isResultShown = false
                 activeSmartAnalysis = null
+            }
+            "+/-" -> {
+                if (displayText != "0" && displayText != "Error") {
+                    displayText = if (displayText.startsWith("-")) displayText.drop(1) else "-$displayText"
+                }
             }
             "=" -> {
                 try {
@@ -157,14 +166,6 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
                 }
                 historyText = expression
             }
-            "%" -> {
-                try {
-                    val v = displayText.toDouble() / 100.0
-                    displayText = if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
-                } catch (e: Exception) {
-                    displayText = "0"
-                }
-            }
             "(" -> {
                 if (displayText == "0" || isResultShown) {
                     displayText = "("
@@ -201,6 +202,102 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
         } else {
             displayText = "0"
         }
+    }
+
+    if (showPercentDialog) {
+        val currentNum = displayText.toDoubleOrNull() ?: 100.0
+        var dialogSecondNum by remember { mutableStateOf("100") }
+        AlertDialog(
+            onDismissRequest = { showPercentDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showPercentDialog = false }) {
+                    Text("Close", fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text(
+                    text = "🎯 Percentage Assistant (प्रतिशत सहायक)",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "Current Value: $displayText",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryIndigo
+                    )
+                    OutlinedTextField(
+                        value = dialogSecondNum,
+                        onValueChange = { dialogSecondNum = it },
+                        label = { Text("Base / Second Number") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    val sNum = dialogSecondNum.toDoubleOrNull() ?: 100.0
+                    
+                    // Mode 1: x% of Y
+                    val m1 = (currentNum / 100.0) * sNum
+                    Button(
+                        onClick = {
+                            displayText = if (m1 == m1.toLong().toDouble()) m1.toLong().toString() else "%.4f".format(m1).trimEnd('0').trimEnd('.')
+                            historyText = "$currentNum% of $sNum ="
+                            isResultShown = true
+                            showPercentDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("$currentNum% of $sNum  →  $m1", fontSize = 13.sp)
+                    }
+
+                    // Mode 2: x is what % of Y
+                    val m2 = if (sNum != 0.0) (currentNum / sNum) * 100.0 else 0.0
+                    Button(
+                        onClick = {
+                            displayText = "%.2f".format(m2)
+                            historyText = "$currentNum is what % of $sNum ="
+                            isResultShown = true
+                            showPercentDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentEmerald),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("$currentNum is what % of $sNum  →  ${"%.2f".format(m2)}%", fontSize = 13.sp)
+                    }
+
+                    // Mode 3: Y increased by x%
+                    val m3 = sNum * (1.0 + currentNum / 100.0)
+                    Button(
+                        onClick = {
+                            displayText = if (m3 == m3.toLong().toDouble()) m3.toLong().toString() else "%.4f".format(m3).trimEnd('0').trimEnd('.')
+                            historyText = "$sNum increased by $currentNum% ="
+                            isResultShown = true
+                            showPercentDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentAmber),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("$sNum + $currentNum%  →  $m3", fontSize = 13.sp)
+                    }
+
+                    // Mode 4: Y decreased by x%
+                    val m4 = sNum * (1.0 - currentNum / 100.0)
+                    Button(
+                        onClick = {
+                            displayText = if (m4 == m4.toLong().toDouble()) m4.toLong().toString() else "%.4f".format(m4).trimEnd('0').trimEnd('.')
+                            historyText = "$sNum decreased by $currentNum% ="
+                            isResultShown = true
+                            showPercentDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentRose),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("$sNum - $currentNum%  →  $m4", fontSize = 13.sp)
+                    }
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -295,7 +392,7 @@ fun CalculatorScreen(viewModel: CalculationViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val specialFuncs = listOf("x²", "√x", "x³", "1/x", "DR")
+                val specialFuncs = listOf("%", "x²", "√x", "x³", "1/x", "DR")
                 items(specialFuncs) { func ->
                     AssistChip(
                         onClick = { onSpecialFunc(func) },
